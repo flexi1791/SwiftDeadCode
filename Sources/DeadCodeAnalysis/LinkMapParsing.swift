@@ -29,7 +29,7 @@ func parseLinkMap(at url: URL) throws -> LinkMapData {
         let indexString = ns.substring(with: match.range(at: 1))
         let path = ns.substring(with: match.range(at: 2))
         if let idx = Int(indexString) {
-          objects[idx] = ObjectRecord(index: idx, path: path)
+          objects[idx] = ObjectRecord(index: idx, path: path, sourceURL: nil)
         }
       }
     case .symbols:
@@ -55,44 +55,6 @@ func parseLinkMap(at url: URL) throws -> LinkMapData {
 }
 
 // MARK: - Source Index Construction
-
-/// Builds a quick-lookup index of source files located under the project root.
-/// - Parameters:
-///   - root: The project root that constrains the search range.
-///   - includePods: Whether third-party pods should be included in the scan.
-/// - Returns: A dictionary keyed by filename (without extension) pointing at source URLs.
-func buildSourceIndex(root: URL?, includePods: Bool) -> [String: URL] {
-  guard let root else { return [:] }
-  let fm = FileManager.default
-  guard let enumerator = fm.enumerator(at: root, includingPropertiesForKeys: [.isDirectoryKey], options: [.skipsHiddenFiles]) else { return [:] }
-
-  let allowedExtensions: Set<String> = ["swift", "m", "mm", "c", "cc", "cpp", "metal"]
-  let skippedDirectories: Set<String> = [".build", "build", "Build", "DerivedData", ".git", ".svn", "xcuserdata", "xcshareddata", "node_modules"]
-  var index: [String: URL] = [:]
-
-  for case let item as URL in enumerator {
-    if let values = try? item.resourceValues(forKeys: [.isDirectoryKey]), values.isDirectory == true {
-      let name = item.lastPathComponent
-      if skippedDirectories.contains(name) {
-        enumerator.skipDescendants()
-        continue
-      }
-      if !includePods && name == "Pods" {
-        enumerator.skipDescendants()
-        continue
-      }
-      continue
-    }
-
-    if !allowedExtensions.contains(item.pathExtension.lowercased()) { continue }
-    let key = item.deletingPathExtension().lastPathComponent
-    if index[key] == nil {
-      index[key] = item
-    }
-  }
-
-  return index
-}
 
 /// Formats a URL relative to the provided base path when possible.
 /// - Parameters:

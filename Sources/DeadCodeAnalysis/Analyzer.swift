@@ -1,13 +1,5 @@
 import Foundation
 
-func isActionableHint(_ hint: SourceHint) -> Bool {
-  let lower = hint.display.lowercased()
-  if lower.isEmpty { return false }
-  if lower.hasPrefix("literal string:") { return false }
-  if lower == "(unknown.o)" { return false }
-  return true
-}
-
 // MARK: - Analysis Pipeline
 
 /// Produces the final analysis by contrasting debug-only symbols with release data.
@@ -15,28 +7,31 @@ func isActionableHint(_ hint: SourceHint) -> Bool {
 ///   - debug: Parsed link-map information from the debug build.
 ///   - release: Parsed link-map information from the release build.
 ///   - config: Runtime configuration influencing filtering and reporting.
-///   - sourceIndex: Lookup index for resolving source hints.
 /// - Returns: The computed `AnalysisResult` containing filtered symbols and debug-only file entries.
-func analyze(debug: LinkMapData, release: LinkMapData, config: Configuration, sourceIndex: [String: URL]) -> AnalysisResult {
+func analyze(debug: LinkMapData, release: LinkMapData, config: Configuration) -> AnalysisResult {
   var rawCount = 0
   var rawSize: UInt64 = 0
   var seen: Set<String> = []
   var objectHasReleaseSymbol: Set<String> = []
   var pendingCandidates: [CandidateSymbol] = []
-  let requireSourceMatch = sourceIndex.count > 8
-  DeadCodeAnalysis.Logger.logVerbose(config.verbose, "Source index entries: \(sourceIndex.count); requireSourceMatch=\(requireSourceMatch)")
+  let resolvedSourceCount = debug.objects.values.reduce(into: 0) { count, object in
+    if object.sourceURL != nil { count += 1 }
+  }
+  let requireSourceMatch = resolvedSourceCount > 8
+  DeadCodeAnalysis.Logger.logVerbose(config.verbose, "Resolved object sources: \(resolvedSourceCount); requireSourceMatch=\(requireSourceMatch)")
   var skippedDuplicates = 0
   var skippedIgnoredObjects = 0
   var skippedNoSource = 0
   var skippedByFilter = 0
   var skippedDemangled = 0
   var missingSourceSamples: [String] = []
-  var literalHintsByObject: [Int: SourceHint] = [:]
   var debugFootprint: [String: (size: UInt64, count: Int)] = [:]
   let projectModules = determineProjectModules(debug: debug, config: config)
   if config.verbose, !projectModules.isEmpty {
     DeadCodeAnalysis.Logger.logVerbose(config.verbose, "Detected project modules: \(projectModules.sorted().joined(separator: ", "))")
   }
+
+  let debugObjects = debug.objects
 
   var releaseKeepableSymbols: Set<String> = []
   var releaseFootprintByPath: [String: (size: UInt64, count: Int)] = [:]
@@ -60,11 +55,6 @@ func analyze(debug: LinkMapData, release: LinkMapData, config: Configuration, so
   }
 
   for symbol in debug.symbols {
-    if literalHintsByObject[symbol.objectIndex] == nil {
-      if let literalHint = literalSourceHint(from: symbol.name, projectRoot: config.projectRoot, sourceIndex: sourceIndex) {
-        literalHintsByObject[symbol.objectIndex] = literalHint
-      }
-    }
     if !projectModules.isEmpty, let canonical = canonicalMangledName(symbol.name) {
       let moduleParts = parseMangledSymbol(canonical)
       if let module = moduleParts.segments.first, !module.isEmpty, !projectModules.contains(module) {
@@ -72,7 +62,7 @@ func analyze(debug: LinkMapData, release: LinkMapData, config: Configuration, so
       }
     }
 
-    let object = debug.objects[symbol.objectIndex]
+    let object = debugObjects[symbol.objectIndex]
     if let object {
       let key = normalizeObjectPath(object.path)
       let footprint = debugFootprint[key] ?? (0, 0)
@@ -98,17 +88,12 @@ func analyze(debug: LinkMapData, release: LinkMapData, config: Configuration, so
       continue
     }
 
-    let hintInfo = makeSourceHint(
-      for: object,
-      projectRoot: config.projectRoot,
-      sourceIndex: sourceIndex,
-      literalHint: object.flatMap { literalHintsByObject[$0.index] } ?? literalHintsByObject[symbol.objectIndex]
-    )
-    if requireSourceMatch && !hintInfo.hasSource {
+    let hasSourceURL = object?.sourceURL != nil
+    if requireSourceMatch && !hasSourceURL {
       skippedNoSource += 1
       if missingSourceSamples.count < 6 {
-        if let object {
-          missingSourceSamples.append(relativePath(for: URL(fileURLWithPath: object.path), base: config.projectRoot))
+        if let objectPath = object?.path {
+          missingSourceSamples.append(relativePath(for: URL(fileURLWithPath: objectPath), base: config.projectRoot))
         } else {
           missingSourceSamples.append(symbol.name)
         }
@@ -116,7 +101,7 @@ func analyze(debug: LinkMapData, release: LinkMapData, config: Configuration, so
       continue
     }
 
-    pendingCandidates.append(CandidateSymbol(symbol: symbol, object: object, sourceHint: hintInfo))
+    pendingCandidates.append(CandidateSymbol(symbol: symbol, object: object))
   }
 
   DeadCodeAnalysis.Logger.logVerbose(config.verbose, "Candidate symbols after preliminary screening: \(pendingCandidates.count) (dup=\(skippedDuplicates), ignoredObject=\(skippedIgnoredObjects), noSource=\(skippedNoSource))")
@@ -150,7 +135,7 @@ func analyze(debug: LinkMapData, release: LinkMapData, config: Configuration, so
 
   var filteredSymbols: [DebugOnlySymbol] = []
   var filteredSize: UInt64 = 0
-  var interestingByObject: [String: (size: UInt64, count: Int, hint: SourceHint)] = [:]
+  var interestingByObject: [String: (size: UInt64, count: Int, sourceURL: URL?)] = [:]
 
   for candidate in filteredCandidates {
     let demangledValue = demangledMap[candidate.symbol.name]
@@ -160,7 +145,7 @@ func analyze(debug: LinkMapData, release: LinkMapData, config: Configuration, so
     }
 
     filteredSize &+= candidate.symbol.size
-    var record = DebugOnlySymbol(symbol: candidate.symbol, object: candidate.object, demangled: nil, sourceHint: candidate.sourceHint)
+  var record = DebugOnlySymbol(symbol: candidate.symbol, object: candidate.object, demangled: nil)
     if config.demangle, let demangledValue {
       record.demangled = cleanDemangledName(demangledValue, modulesToStrip: modulesToStrip)
     }
@@ -168,19 +153,17 @@ func analyze(debug: LinkMapData, release: LinkMapData, config: Configuration, so
 
     if let object = candidate.object {
       let key = normalizeObjectPath(object.path)
-      let entry = interestingByObject[key] ?? (0, 0, candidate.sourceHint)
-      let chosenHint: SourceHint
-      if entry.hint.hasSource {
-        chosenHint = entry.hint
-      } else if candidate.sourceHint.hasSource {
-        chosenHint = candidate.sourceHint
+      let entry = interestingByObject[key] ?? (0, 0, candidate.object?.sourceURL)
+      let chosenURL: URL?
+      if let existing = entry.sourceURL {
+        chosenURL = existing
       } else {
-        chosenHint = entry.hint
+        chosenURL = candidate.object?.sourceURL
       }
       interestingByObject[key] = (
         entry.size &+ candidate.symbol.size,
         entry.count + 1,
-        chosenHint
+        chosenURL
       )
     }
   }
@@ -188,8 +171,10 @@ func analyze(debug: LinkMapData, release: LinkMapData, config: Configuration, so
   DeadCodeAnalysis.Logger.logVerbose(config.verbose, "Retained debug-only symbols: \(filteredSymbols.count) (filteredSize=\(formatBytes(filteredSize)), demangleFiltered=\(skippedDemangled))")
 
   filteredSymbols.sort { lhs, rhs in
-    if lhs.sourceHint.display != rhs.sourceHint.display {
-      return lhs.sourceHint.display < rhs.sourceHint.display
+    let lhsDisplay = lhs.object?.path ?? lhs.symbol.name
+    let rhsDisplay = rhs.object?.path ?? rhs.symbol.name
+    if lhsDisplay != rhsDisplay {
+      return lhsDisplay < rhsDisplay
     }
     if lhs.symbol.size != rhs.symbol.size {
       return lhs.symbol.size > rhs.symbol.size
@@ -200,7 +185,7 @@ func analyze(debug: LinkMapData, release: LinkMapData, config: Configuration, so
   }
 
   var normalizedDebugObjects: [String: ObjectRecord] = [:]
-  for object in debug.objects.values {
+  for object in debugObjects.values {
     let path = normalizeObjectPath(object.path)
     if normalizedDebugObjects[path] == nil {
       normalizedDebugObjects[path] = object
@@ -215,8 +200,8 @@ func analyze(debug: LinkMapData, release: LinkMapData, config: Configuration, so
   var seenDebugOnlyPaths: Set<String> = []
   for (path, info) in interestingByObject {
     if objectHasReleaseSymbol.contains(path) { continue }
-    if !isActionableHint(info.hint) { continue }
-    debugOnlyFiles.append(DebugOnlyFile(objectPath: path, sourceHint: info.hint, debugOnlySize: info.size, symbolCount: info.count))
+    let resolvedURL = info.sourceURL ?? normalizedDebugObjects[path]?.sourceURL
+    debugOnlyFiles.append(DebugOnlyFile(objectPath: path, sourceURL: resolvedURL, debugOnlySize: info.size, symbolCount: info.count))
     seenDebugOnlyPaths.insert(path)
   }
 
@@ -226,26 +211,18 @@ func analyze(debug: LinkMapData, release: LinkMapData, config: Configuration, so
     if let releaseBaseInfo = releaseFootprintByBaseName[object.baseName], releaseBaseInfo.count > 0 { continue }
     if objectHasReleaseSymbol.contains(path) { continue }
     if shouldIgnoreObject(object, includePods: config.includePods) { continue }
-    let hint = makeSourceHint(
-      for: object,
-      projectRoot: config.projectRoot,
-      sourceIndex: sourceIndex,
-      literalHint: literalHintsByObject[object.index]
-    )
-    var effectiveHint = hint
-    if requireSourceMatch && !hint.hasSource {
+
+    let effectiveURL = object.sourceURL
+
+    if requireSourceMatch && effectiveURL == nil {
       if missingSourceSamples.count < 6 {
         missingSourceSamples.append(relativePath(for: URL(fileURLWithPath: object.path), base: config.projectRoot))
       }
-      if effectiveHint.display.isEmpty {
-        let fallbackDisplay = relativePath(for: URL(fileURLWithPath: object.path), base: config.projectRoot)
-        effectiveHint = SourceHint(display: fallbackDisplay, url: nil, hasSource: false)
-      }
+      continue
     }
     let footprint = debugFootprint[path] ?? (0, 0)
-    if !isActionableHint(effectiveHint) { continue }
     let reportedCount = interestingByObject[path]?.count ?? 0
-    debugOnlyFiles.append(DebugOnlyFile(objectPath: path, sourceHint: effectiveHint, debugOnlySize: footprint.size, symbolCount: reportedCount))
+    debugOnlyFiles.append(DebugOnlyFile(objectPath: path, sourceURL: effectiveURL, debugOnlySize: footprint.size, symbolCount: reportedCount))
     seenDebugOnlyPaths.insert(path)
   }
   var releaseSymbolNameCache: [String: Bool] = [:]
@@ -253,11 +230,11 @@ func analyze(debug: LinkMapData, release: LinkMapData, config: Configuration, so
     let baseName = URL(fileURLWithPath: entry.objectPath).deletingPathExtension().lastPathComponent
     return !releaseSymbolsContain(baseName, releaseSymbols: release.symbols, cache: &releaseSymbolNameCache)
   }
-  debugOnlyFiles.sort {
-    if $0.debugOnlySize == $1.debugOnlySize {
-      return $0.sourceHint.display < $1.sourceHint.display
+  debugOnlyFiles.sort { lhs, rhs in
+    if lhs.debugOnlySize == rhs.debugOnlySize {
+      return lhs.objectPath < rhs.objectPath
     }
-    return $0.debugOnlySize > $1.debugOnlySize
+    return lhs.debugOnlySize > rhs.debugOnlySize
   }
 
   DeadCodeAnalysis.Logger.logVerbose(config.verbose, "Debug-only files retained: \(debugOnlyFiles.count)")

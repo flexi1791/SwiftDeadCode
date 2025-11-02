@@ -6,6 +6,7 @@ import Foundation
 struct ObjectRecord {
   let index: Int
   let path: String
+  var sourceURL: URL?
 
   var baseName: String {
     URL(fileURLWithPath: path).lastPathComponent
@@ -28,26 +29,17 @@ struct LinkMapData {
   let lineCount: Int
 }
 
-/// A best-effort mapping between a symbol/object and its human-readable source location.
-struct SourceHint {
-  let display: String
-  let url: URL?
-  let hasSource: Bool
-}
-
 /// Captures a debug-only symbol along with contextual metadata for reporting.
 struct DebugOnlySymbol {
   let symbol: SymbolRecord
   let object: ObjectRecord?
   var demangled: String?
-  let sourceHint: SourceHint
 }
 
 /// Candidate symbol awaiting allow-list filtering.
 struct CandidateSymbol {
   let symbol: SymbolRecord
   let object: ObjectRecord?
-  let sourceHint: SourceHint
 }
 
 /// Aggregated output of the debug-vs-release comparison.
@@ -65,7 +57,7 @@ struct AnalysisResult {
 /// Summary of a file or object that only appears in the debug build.
 struct DebugOnlyFile {
   let objectPath: String
-  let sourceHint: SourceHint
+  let sourceURL: URL?
   let debugOnlySize: UInt64
   let symbolCount: Int
 }

@@ -8,8 +8,11 @@ public func runDeadCodeAnalysis() {
     DeadCodeAnalysis.Logger.logStatus("Parsed \(debugMap.path.lastPathComponent): \(debugMap.lineCount) lines")
     let releaseMap = try parseLinkMap(at: config.releaseURL)
     DeadCodeAnalysis.Logger.logStatus("Parsed \(releaseMap.path.lastPathComponent): \(releaseMap.lineCount) lines")
-    let sourceIndex = buildSourceIndex(root: config.projectRoot, includePods: config.includePods)
-    let analysis = analyze(debug: debugMap, release: releaseMap, config: config, sourceIndex: sourceIndex)
+    let resolvedDebugObjects = resolveObjectSources(objects: debugMap.objects, projectRoot: config.projectRoot)
+    let resolvedCount = resolvedDebugObjects.values.filter { $0.sourceURL != nil }.count
+    DeadCodeAnalysis.Logger.logVerbose(config.verbose, "Resolved source paths for \(resolvedCount) of \(resolvedDebugObjects.count) objects")
+    let debugWithSources = LinkMapData(path: debugMap.path, objects: resolvedDebugObjects, symbols: debugMap.symbols, lineCount: debugMap.lineCount)
+    let analysis = analyze(debug: debugWithSources, release: releaseMap, config: config)
     printReport(analysis, config: config)
     if let outputURL = config.outputURL {
       let lines = reportLines(analysis, config: config)

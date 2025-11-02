@@ -1,8 +1,38 @@
 import Foundation
 
 // MARK: - Reporting
-private func bold(_ text: String) -> String {
-  return "\u{001B}[1m\(text)\u{001B}[0m"
+
+private func displayName(sourceURL: URL?, objectPath: String?, config: Configuration) -> String {
+  if let sourceURL {
+    let relative = relativePath(for: sourceURL, base: config.projectRoot).trimmingCharacters(in: .whitespacesAndNewlines)
+    if !relative.isEmpty {
+      if relative.contains("/") {
+        return URL(fileURLWithPath: relative).lastPathComponent
+      }
+      return relative
+    }
+    return sourceURL.lastPathComponent
+  }
+
+  if let objectPath {
+    let base = URL(fileURLWithPath: objectPath).lastPathComponent
+    if !base.isEmpty { return base }
+  }
+
+  return "(unknown)"
+}
+
+private func contextPath(sourceURL: URL?, objectPath: String?, config: Configuration) -> String? {
+  if let sourceURL {
+    return relativePath(for: sourceURL, base: config.projectRoot)
+  }
+
+  if let objectPath {
+    let url = URL(fileURLWithPath: objectPath)
+    return relativePath(for: url, base: config.projectRoot)
+  }
+
+  return nil
 }
 
 /// Returns a human-friendly suffix describing notable debug-only symbols.
@@ -19,38 +49,39 @@ func symbolNote(_ symbol: DebugOnlySymbol) -> String? {
   return nil
 }
 
-/// Resolves a filesystem path suitable for Xcode-style diagnostics using a source hint.
+/// Resolves a filesystem path suitable for Xcode-style diagnostics using available source metadata.
 ///
 /// - Parameters:
 ///   - hint: The hint describing the source location associated with a symbol or object file.
 ///   - config: The runtime configuration containing path resolution preferences.
-func diagnosticPath(for hint: SourceHint, config: Configuration) -> String? {
-  if let url = hint.url {
-    return url.path
+private func diagnosticPath(sourceURL: URL?, objectPath: String?, config: Configuration) -> String? {
+  if let sourceURL {
+    return sourceURL.path
   }
-  let display = hint.display
-  if display.isEmpty { return nil }
-  if display.hasPrefix("/") {
-    return display
+
+  guard let fallback = objectPath, !fallback.isEmpty else { return nil }
+
+  if fallback.hasPrefix("/") {
+    return fallback
   }
+
   guard let projectRoot = config.projectRoot else {
-    return display
+    return fallback
   }
-  
-  if display.contains("/") {
-    let candidate = projectRoot.appendingPathComponent(display)
-    return candidate.path
+
+  if fallback.contains("/") {
+    return projectRoot.appendingPathComponent(fallback).path
   }
-  
+
   let prefixes = config.sourcePrefixes.isEmpty ? [""] : config.sourcePrefixes
   for prefix in prefixes {
-    let candidate = projectRoot.appendingPathComponent(prefix).appendingPathComponent(display)
+    let candidate = projectRoot.appendingPathComponent(prefix).appendingPathComponent(fallback)
     if FileManager.default.fileExists(atPath: candidate.path) {
       return candidate.path
     }
   }
-  
-  return projectRoot.appendingPathComponent(display).path
+
+  return projectRoot.appendingPathComponent(fallback).path
 }
 
 /// Resolves a filesystem path suitable for Xcode-style diagnostics using symbol metadata.
@@ -59,7 +90,7 @@ func diagnosticPath(for hint: SourceHint, config: Configuration) -> String? {
 ///   - symbol: The debug-only symbol whose hint should be resolved.
 ///   - config: The runtime configuration containing path resolution preferences.
 func diagnosticPath(for symbol: DebugOnlySymbol, config: Configuration) -> String? {
-  diagnosticPath(for: symbol.sourceHint, config: config)
+  diagnosticPath(sourceURL: symbol.object?.sourceURL, objectPath: symbol.object?.path, config: config)
 }
 
 /// Produces human-readable report lines describing the analysis results.
@@ -86,40 +117,21 @@ func reportLines(_ result: AnalysisResult, config: Configuration) -> [String] {
     return lines
   }
   
-  if !result.debugOnlyFiles.isEmpty {
-    if !lines.isEmpty {
-      lines.append("")
-    }
-    let sortedEntries = result.debugOnlyFiles.sorted { lhs, rhs in
-      lhs.sourceHint.display < rhs.sourceHint.display
-    }
-    let entriesToShow: [DebugOnlyFile]
-    if config.groupLimit > 0 && config.groupLimit < sortedEntries.count {
-      lines.append("Files unique to debug build (showing first \(config.groupLimit) of \(sortedEntries.count)):")
-      entriesToShow = Array(sortedEntries.prefix(config.groupLimit))
-    } else {
-      lines.append("Files unique to debug build (no release symbols found):")
-      entriesToShow = sortedEntries
-    }
-    for entry in entriesToShow {
-      let file = rightPad(entry.sourceHint.display, to: 36)
-      let countText = leftPad("\(entry.symbolCount)", to: 5)
-      if let path = diagnosticPath(for: entry.sourceHint, config: config) {
-        lines.append("\(path):1:1: warning: [dead-code] Debug-only object file \(bold(file))  \(countText) symbol(s)")
-      } else {
-        lines.append("\(bold(file))  \(countText) symbol(s)")
-      }
-    }
-  }
-  
-  let groupedSymbols = Dictionary(grouping: result.filteredSymbols, by: { $0.sourceHint.display })
-  let allDisplays = Set(groupedSymbols.keys).union(result.debugOnlyFiles.map { $0.sourceHint.display })
+  let groupedSymbols = Dictionary(grouping: result.filteredSymbols, by: { symbol in
+    displayName(sourceURL: symbol.object?.sourceURL, objectPath: symbol.object?.path, config: config)
+  })
+  let debugOnlyGroups = Dictionary(grouping: result.debugOnlyFiles, by: { file in
+    displayName(sourceURL: file.sourceURL, objectPath: file.objectPath, config: config)
+  })
+  let allDisplays = Set(groupedSymbols.keys).union(debugOnlyGroups.keys)
   if !allDisplays.isEmpty {
     if !lines.isEmpty {
       lines.append("")
     }
     lines.append("Debug-only symbols grouped by file (\(allDisplays.count) total):")
-    let sortedDisplays = allDisplays.sorted()
+    let sortedDisplays = allDisplays.sorted { lhs, rhs in
+      return lhs.localizedCaseInsensitiveCompare(rhs) == .orderedAscending
+    }
     let displaysToShow: [String]
     if config.groupLimit > 0 && config.groupLimit < sortedDisplays.count {
       lines.append("(showing first \(config.groupLimit) files)")
@@ -136,26 +148,56 @@ func reportLines(_ result: AnalysisResult, config: Configuration) -> [String] {
         }
         return lhs.symbol.size > rhs.symbol.size
       }
-      let fallback = result.debugOnlyFiles.first { $0.sourceHint.display == display }
-      let count = symbols.isEmpty ? (fallback?.symbolCount ?? 0) : symbols.count
-      let fileLabel = rightPad(display, to: 36)
-      let countText = leftPad("\(count)", to: 5)
-      let fallbackPath = fallback.flatMap { diagnosticPath(for: $0.sourceHint, config: config) }
+      let fallbackEntries = debugOnlyGroups[display] ?? []
+      let fallback = fallbackEntries.first
+      let displayName = display.isEmpty ? "(unknown)" : display
+      let fallbackPath = fallback.flatMap { diagnosticPath(sourceURL: $0.sourceURL, objectPath: $0.objectPath, config: config) }
+      let fallbackContext = fallback.flatMap { contextPath(sourceURL: $0.sourceURL, objectPath: $0.objectPath, config: config) }
 
       if symbols.isEmpty {
+        let objectLine = "\(displayName) - unused in release"
+        if fallbackEntries.count > 1 {
+          for entry in fallbackEntries {
+            let context = contextPath(sourceURL: entry.sourceURL, objectPath: entry.objectPath, config: config)
+            let message = context != nil && context != displayName ? "\(objectLine) (\(context!))" : objectLine
+            if let path = diagnosticPath(sourceURL: entry.sourceURL, objectPath: entry.objectPath, config: config) {
+              lines.append("\(path):1:1: warning: \(message)")
+            } else {
+              lines.append(message)
+            }
+          }
+          continue
+        }
+        let message = fallbackContext != nil && fallbackContext != displayName ? "\(objectLine) (\(fallbackContext!))" : objectLine
         if let path = fallbackPath {
-          lines.append("\(path):1:1: warning: [dead-code] Debug-only object file \(display)")
+          lines.append("\(path):1:1: warning: \(message)")
         } else {
-          lines.append("\(bold(fileLabel))  \(countText) symbol(s)")
-          lines.append("    Debug-only object file \(display)")
+          lines.append(message)
         }
         continue
       }
 
       let headerPath = symbols.compactMap { diagnosticPath(for: $0, config: config) }.first ?? fallbackPath
-      let summary = "\(bold(fileLabel))  \(countText) symbol(s)"
+      let headerContext: String?
+      if let resolvedPath = headerPath {
+        if resolvedPath.hasPrefix("/") {
+          headerContext = relativePath(for: URL(fileURLWithPath: resolvedPath), base: config.projectRoot)
+        } else {
+          headerContext = resolvedPath
+        }
+      } else if let symbolContext = symbols.compactMap({ contextPath(sourceURL: $0.object?.sourceURL, objectPath: $0.object?.path, config: config) }).first {
+        headerContext = symbolContext
+      } else {
+        headerContext = fallbackContext
+      }
+      let summary: String
+      if let context = headerContext, context != displayName {
+        summary = "\(displayName) - \(context)"
+      } else {
+        summary = displayName
+      }
       if let path = headerPath {
-        lines.append("\(path):1:1: warning: [dead-code] \(summary)")
+        lines.append("\(path):1:1: warning: \(summary)")
       } else {
         lines.append(summary)
       }
@@ -169,9 +211,9 @@ func reportLines(_ result: AnalysisResult, config: Configuration) -> [String] {
           name += " \(note)"
         }
         if let path = diagnosticPath(for: symbol, config: config) {
-          lines.append("\(path):1:1: warning: [dead-code] Debug-only symbol \(name)")
+          lines.append("\(path):1:1: warning:    \(name)")
         } else {
-          lines.append("    Debug-only symbol \(name)")
+          lines.append("    \(name)")
         }
       }
     }

@@ -2,45 +2,29 @@ import Foundation
 
 extension DeadCodeAnalysis {
   enum SourceResolver {
-    /// Caches resolved source file URLs per project root to avoid repeated filesystem scans.
     private static var cache: [String: [String: URL]] = [:]
 
-    /// Locates a Swift file with the provided filename anywhere under the given root directory.
-    /// - Parameters:
-    ///   - filename: The filename (including extension) to search for.
-    ///   - root: The directory to scan recursively.
-    /// - Returns: The first URL that matches the filename, or `nil` if no match is found.
     static func findSwiftFile(named filename: String, in root: URL) -> URL? {
       let fileManager = FileManager.default
       guard let enumerator = fileManager.enumerator(at: root, includingPropertiesForKeys: [.isRegularFileKey]) else {
         return nil
       }
 
-      for case let fileURL as URL in enumerator where fileURL.lastPathComponent == filename {
-        return fileURL
+      for case let fileURL as URL in enumerator {
+        if fileURL.lastPathComponent.caseInsensitiveCompare(filename) == .orderedSame {
+          return fileURL
+        }
       }
 
       return nil
     }
 
-    /// Determines whether a file should be ignored because it is generated at runtime and not tracked in source control.
-    /// - Parameter filename: The candidate filename to test.
-    /// - Returns: `true` when the name matches a known generated-assets pattern.
     private static func isRuntimeGeneratedSource(_ filename: String) -> Bool {
       filename.lowercased().contains("generatedassetsymbols")
     }
 
-    /// Resolves the on-disk location of a source file by consulting the cache and walking the filesystem as needed.
-    /// - Parameters:
-    ///   - filename: The name of the file to locate.
-    ///   - root: The project root used as the search scope.
-    /// - Returns: The URL to the source file, or `nil` when the file cannot be found or should be ignored.
-    static func findSourceFile(named filename: String, in root: URL?) -> URL? {
-      guard let root else { return nil }
-
-      if isRuntimeGeneratedSource(filename) {
-        return nil
-      }
+    static func findSourceFile(named filename: String, in root: URL?, allowExtensions: Set<String> = []) -> URL? {
+      guard let root, !isRuntimeGeneratedSource(filename) else { return nil }
 
       let rootKey = root.standardizedFileURL.path
       if let cached = cache[rootKey]?[filename] {
@@ -48,26 +32,55 @@ extension DeadCodeAnalysis {
         return cached
       }
 
+      // Try direct match first
       if let located = findSwiftFile(named: filename, in: root) {
+        cache[rootKey, default: [:]][filename] = located
         DeadCodeAnalysis.Logger.logVerbose(true, "found match for \(filename): \(located.path)")
-        var inner = cache[rootKey] ?? [:]
-        inner[filename] = located
-        cache[rootKey] = inner
         return located
       }
 
-      // DeadCodeAnalysis.Logger.logVerbose(true, "no match for \(filename) under \(root.path)")
+      // Try alternate extensions
+      guard !allowExtensions.isEmpty else { return nil }
+
+      let baseName = URL(fileURLWithPath: filename).deletingPathExtension().lastPathComponent
+
+      for ext in allowExtensions {
+        let candidateName = baseName + "." + ext
+        if candidateName.caseInsensitiveCompare(filename) == .orderedSame { continue }
+
+        if let located = findSwiftFile(named: candidateName, in: root) {
+          cache[rootKey, default: [:]][filename] = located
+          return located
+        }
+      }
+
       return nil
     }
   }
 }
 
-/// Convenience passthrough to the shared source resolver for compatibility.
-func findSwiftFile(named filename: String, in root: URL) -> URL? {
-  DeadCodeAnalysis.SourceResolver.findSwiftFile(named: filename, in: root)
+private let preferredSourceExtensions: Set<String> = ["swift", "m", "mm", "c", "cc", "cpp", "metal"]
+
+func resolveSourceURL(forObjectPath objectPath: String, projectRoot: URL?) -> URL? {
+  let baseName = URL(fileURLWithPath: objectPath).deletingPathExtension().lastPathComponent
+  guard !baseName.isEmpty else { return nil }
+
+  guard let projectRoot else { return nil }
+
+  if let located = DeadCodeAnalysis.SourceResolver.findSourceFile(named: baseName, in: projectRoot, allowExtensions: preferredSourceExtensions) {
+    return located
+  }
+
+  return nil
 }
 
-/// Convenience passthrough to the shared source resolver for compatibility.
-func findSourceFile(named filename: String, in root: URL?) -> URL? {
-  DeadCodeAnalysis.SourceResolver.findSourceFile(named: filename, in: root)
+func resolveObjectSources(objects: [Int: ObjectRecord], projectRoot: URL?) -> [Int: ObjectRecord] {
+  var resolved = objects
+  for (index, object) in objects {
+    let sourceURL = resolveSourceURL(forObjectPath: object.path, projectRoot: projectRoot)
+    var updated = object
+    updated.sourceURL = sourceURL
+    resolved[index] = updated
+  }
+  return resolved
 }
