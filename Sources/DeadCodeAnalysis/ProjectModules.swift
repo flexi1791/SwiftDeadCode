@@ -12,7 +12,7 @@ func determineProjectModules(debug: LinkMapData, config: Configuration) -> Set<S
     let parts = parseMangledSymbol(canonical)
     guard let module = moduleName(from: parts), !module.isEmpty else { continue }
     if systemModuleNames.contains(module) { continue }
-    if let object = debug.objects[symbol.objectIndex], shouldIgnoreObject(object, includePods: config.includePods) {
+  if let object = debug.objects[symbol.objectIndex], shouldIgnoreObject(object) {
       continue
     }
     modules.insert(module)

@@ -83,7 +83,7 @@ func analyze(debug: LinkMapData, release: LinkMapData, config: Configuration) ->
       continue
     }
 
-    if let object, shouldIgnoreObject(object, includePods: config.includePods) {
+  if let object, shouldIgnoreObject(object) {
       skippedIgnoredObjects += 1
       continue
     }
@@ -210,7 +210,7 @@ func analyze(debug: LinkMapData, release: LinkMapData, config: Configuration) ->
     if let releaseInfo = releaseFootprintByPath[path], releaseInfo.count > 0 { continue }
     if let releaseBaseInfo = releaseFootprintByBaseName[object.baseName], releaseBaseInfo.count > 0 { continue }
     if objectHasReleaseSymbol.contains(path) { continue }
-    if shouldIgnoreObject(object, includePods: config.includePods) { continue }
+  if shouldIgnoreObject(object) { continue }
 
     let effectiveURL = object.sourceURL
 

@@ -3,9 +3,8 @@ import Foundation
 /// Determines whether an object file should be excluded from the analysis.
 /// - Parameters:
 ///   - object: The object record under review.
-///   - includePods: Flag indicating whether third-party pods should be considered.
 /// - Returns: `true` when the object should be ignored.
-func shouldIgnoreObject(_ object: ObjectRecord, includePods: Bool) -> Bool {
+func shouldIgnoreObject(_ object: ObjectRecord) -> Bool {
   let path = object.path
   let lowered = path.lowercased()
   if path.contains(".framework/") { return true }
@@ -14,7 +13,7 @@ func shouldIgnoreObject(_ object: ObjectRecord, includePods: Bool) -> Bool {
   if path.contains("SourcePackages/checkouts") { return true }
   if lowered.contains(".dylib") { return true }
   if lowered.contains("linker synthesized") { return true }
-  if !includePods && path.contains("/Pods/") { return true }
+  if path.contains("/Pods/") { return true }
   return false
 }
 

@@ -66,15 +66,20 @@ struct DebugOnlyFile {
 
 /// Command-line configuration supplied to the analyzer.
 struct Configuration {
+  /// Debug build link-map URL.
   let debugURL: URL
+  /// Release build link-map URL.
   let releaseURL: URL
+  /// Optional project root used to relativize diagnostic paths and locate sources.
   let projectRoot: URL?
-  let includePods: Bool
   let demangle: Bool
-  let limit: Int
   let groupLimit: Int
+  /// Optional destination for writing the final report to disk.
   let outputURL: URL?
+  /// Enables verbose logging when true.
   let verbose: Bool
+  /// Additional source path prefixes to probe when resolving object files. When left empty the analyzer attempts to
+  /// infer useful defaults from `SCRIPT_INPUT_FILE_*` entries emitted by Xcode run-script build phases.
   let sourcePrefixes: [String]
 }
 
