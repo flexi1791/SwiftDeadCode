@@ -151,7 +151,7 @@ func reportLines(_ result: AnalysisResult, config: Configuration) -> [String] {
   return lines
 }
 
-/// Emits diagnostics and writes the textual report to standard output.
+/// Writes the textual report, including grouped diagnostics, to standard output.
 ///
 /// - Parameters:
 ///   - result: The aggregated analysis containing filtered symbols and file summaries.
