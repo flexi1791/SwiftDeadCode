@@ -10,7 +10,6 @@ import Foundation
 ///   - sourceIndex: Lookup index for resolving source hints.
 /// - Returns: The computed `AnalysisResult` containing filtered symbols and debug-only file entries.
 func analyze(debug: LinkMapData, release: LinkMapData, config: Configuration, sourceIndex: [String: URL]) -> AnalysisResult {
-  let releaseSet = Set(release.symbols.map { $0.name })
   var rawCount = 0
   var rawSize: UInt64 = 0
   var seen: Set<String> = []
@@ -26,10 +25,26 @@ func analyze(debug: LinkMapData, release: LinkMapData, config: Configuration, so
   var missingSourceSamples: [String] = []
   var literalHintsByObject: [Int: SourceHint] = [:]
   var debugFootprint: [String: (size: UInt64, count: Int)] = [:]
-  let releaseObjectPaths: Set<String> = Set(release.objects.values.map { normalizeObjectPath($0.path) })
   let projectModules = determineProjectModules(debug: debug, config: config)
   if config.verbose, !projectModules.isEmpty {
     DeadCodeAnalysis.Logger.logVerbose(config.verbose, "Detected project modules: \(projectModules.sorted().joined(separator: ", "))")
+  }
+
+  var releaseKeepableSymbols: Set<String> = []
+  var releaseFootprint: [String: (size: UInt64, count: Int)] = [:]
+  for symbol in release.symbols {
+    if shouldKeepSymbol(
+      symbol.name,
+      allowedSuffixes: allowListSuffixes,
+      allowedModules: projectModules
+    ) {
+      releaseKeepableSymbols.insert(symbol.name)
+      if let object = release.objects[symbol.objectIndex] {
+        let key = normalizeObjectPath(object.path)
+        let footprint = releaseFootprint[key] ?? (0, 0)
+        releaseFootprint[key] = (footprint.size &+ symbol.size, footprint.count + 1)
+      }
+    }
   }
 
   for symbol in debug.symbols {
@@ -50,11 +65,11 @@ func analyze(debug: LinkMapData, release: LinkMapData, config: Configuration, so
       let key = normalizeObjectPath(object.path)
       let footprint = debugFootprint[key] ?? (0, 0)
       debugFootprint[key] = (footprint.size &+ symbol.size, footprint.count + 1)
-      if releaseSet.contains(symbol.name) {
+      if releaseKeepableSymbols.contains(symbol.name) {
         objectHasReleaseSymbol.insert(key)
         continue
       }
-    } else if releaseSet.contains(symbol.name) {
+    } else if releaseKeepableSymbols.contains(symbol.name) {
       continue
     }
 
@@ -194,7 +209,7 @@ func analyze(debug: LinkMapData, release: LinkMapData, config: Configuration, so
 
   for (path, object) in normalizedDebugObjects {
     if seenDebugOnlyPaths.contains(path) { continue }
-    if releaseObjectPaths.contains(path) { continue }
+  if let releaseInfo = releaseFootprint[path], releaseInfo.count > 0 { continue }
     if objectHasReleaseSymbol.contains(path) { continue }
     if shouldIgnoreObject(object, includePods: config.includePods) { continue }
     let hint = makeSourceHint(
@@ -214,7 +229,8 @@ func analyze(debug: LinkMapData, release: LinkMapData, config: Configuration, so
       }
     }
     let footprint = debugFootprint[path] ?? (0, 0)
-    debugOnlyFiles.append(DebugOnlyFile(objectPath: path, sourceHint: effectiveHint, debugOnlySize: footprint.size, symbolCount: footprint.count))
+  let reportedCount = interestingByObject[path]?.count ?? 0
+  debugOnlyFiles.append(DebugOnlyFile(objectPath: path, sourceHint: effectiveHint, debugOnlySize: footprint.size, symbolCount: reportedCount))
     seenDebugOnlyPaths.insert(path)
   }
   var releaseSymbolNameCache: [String: Bool] = [:]
