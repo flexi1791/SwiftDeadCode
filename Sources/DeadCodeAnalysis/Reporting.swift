@@ -2,6 +2,9 @@ import Foundation
 
 // MARK: - Reporting
 
+/// Returns a human-friendly suffix describing notable debug-only symbols.
+///
+/// - Parameter symbol: The debug-only symbol being evaluated for annotations.
 func symbolNote(_ symbol: DebugOnlySymbol) -> String? {
   let lowered = (symbol.demangled ?? symbol.symbol.name).lowercased()
   if lowered.contains("previewprovider") || lowered.contains(".previews") {
@@ -13,11 +16,16 @@ func symbolNote(_ symbol: DebugOnlySymbol) -> String? {
   return nil
 }
 
-func diagnosticPath(for symbol: DebugOnlySymbol, config: Configuration) -> String? {
-  if let url = symbol.sourceHint.url {
+/// Resolves a filesystem path suitable for Xcode-style diagnostics using a source hint.
+///
+/// - Parameters:
+///   - hint: The hint describing the source location associated with a symbol or object file.
+///   - config: The runtime configuration containing path resolution preferences.
+func diagnosticPath(for hint: SourceHint, config: Configuration) -> String? {
+  if let url = hint.url {
     return url.path
   }
-  let display = symbol.sourceHint.display
+  let display = hint.display
   if display.isEmpty { return nil }
   if display.hasPrefix("/") {
     return display
@@ -42,34 +50,20 @@ func diagnosticPath(for symbol: DebugOnlySymbol, config: Configuration) -> Strin
   return projectRoot.appendingPathComponent(display).path
 }
 
-func emitDiagnostics(for symbols: [DebugOnlySymbol], config: Configuration) {
-  func writeWarning(_ text: String) {
-    guard let data = (text + "\n").data(using: .utf8) else { return }
-    FileHandle.standardError.write(data)
-  }
-  
-  let groupedByDisplay = Dictionary(grouping: symbols, by: { $0.sourceHint.display })
-  let orderedDisplays = groupedByDisplay.keys.sorted()
-  
-  for display in orderedDisplays {
-    guard let bucket = groupedByDisplay[display] else { continue }
-    let sortedSymbols = bucket.sorted { lhs, rhs in
-      if lhs.symbol.size == rhs.symbol.size {
-        let lhsName = lhs.demangled ?? lhs.symbol.name
-        let rhsName = rhs.demangled ?? rhs.symbol.name
-        return lhsName < rhsName
-      }
-      return lhs.symbol.size > rhs.symbol.size
-    }
-    
-    for symbol in sortedSymbols {
-      guard let path = diagnosticPath(for: symbol, config: config) else { continue }
-      let name = symbol.demangled ?? symbol.symbol.name
-      writeWarning("\(path):1:1: warning: [dead-code] Debug-only symbol \(name)")
-    }
-  }
+/// Resolves a filesystem path suitable for Xcode-style diagnostics using symbol metadata.
+///
+/// - Parameters:
+///   - symbol: The debug-only symbol whose hint should be resolved.
+///   - config: The runtime configuration containing path resolution preferences.
+func diagnosticPath(for symbol: DebugOnlySymbol, config: Configuration) -> String? {
+  diagnosticPath(for: symbol.sourceHint, config: config)
 }
 
+/// Produces human-readable report lines describing the analysis results.
+///
+/// - Parameters:
+///   - result: The aggregated analysis containing filtered symbols and file summaries.
+///   - config: The runtime configuration controlling formatting and truncation.
 func reportLines(_ result: AnalysisResult, config: Configuration) -> [String] {
   var lines: [String] = []
   lines.append("Debug link map: \(config.debugURL.path)")
@@ -85,65 +79,84 @@ func reportLines(_ result: AnalysisResult, config: Configuration) -> [String] {
     return lines
   }
   
-  if !result.lowHangingFiles.isEmpty {
+  if !result.debugOnlyFiles.isEmpty {
     lines.append("")
-    let lowHangingEntries: [LowHangingFruit]
-    if config.groupLimit > 0 && config.groupLimit < result.lowHangingFiles.count {
-      lines.append("Files with debug-only symbols (showing first \(config.groupLimit) of \(result.lowHangingFiles.count)):")
-      lowHangingEntries = Array(result.lowHangingFiles.prefix(config.groupLimit))
+    let debugOnlyEntries: [DebugOnlyFile]
+    if config.groupLimit > 0 && config.groupLimit < result.debugOnlyFiles.count {
+      lines.append("Files unique to debug build (showing first \(config.groupLimit) of \(result.debugOnlyFiles.count)):")
+      debugOnlyEntries = Array(result.debugOnlyFiles.prefix(config.groupLimit))
     } else {
-      lines.append("Files with debug-only symbols (no release symbols found):")
-      lowHangingEntries = result.lowHangingFiles
+      lines.append("Files unique to debug build (no release symbols found):")
+      debugOnlyEntries = result.debugOnlyFiles
     }
-    for entry in lowHangingEntries {
+    for entry in debugOnlyEntries {
       let file = rightPad(entry.sourceHint.display, to: 36)
       let countText = leftPad("\(entry.symbolCount)", to: 5)
       lines.append("\(file)  \(countText) symbol(s)")
     }
   }
   
-  lines.append("")
-  lines.append("Debug-only symbols: \(result.filteredSymbols.count)")
-  
-  var aggregatedCounts: [String: Int] = [:]
-  for symbol in result.filteredSymbols {
-    let display = symbol.sourceHint.display
-    aggregatedCounts[display, default: 0] += 1
-  }
-  for entry in result.lowHangingFiles {
-    let display = entry.sourceHint.display
-    let existing = aggregatedCounts[display] ?? 0
-    let candidate = max(existing, entry.symbolCount)
-    aggregatedCounts[display] = candidate
-  }
-  let ranked = aggregatedCounts.map { (key: String, value: Int) -> (String, Int) in
-    (key, value)
-  }.sorted { lhs, rhs in
-    lhs.0 < rhs.0
-  }
-  
-  if !ranked.isEmpty {
+  let groupedSymbols = Dictionary(grouping: result.filteredSymbols, by: { $0.sourceHint.display })
+  let allDisplays = Set(groupedSymbols.keys).union(result.debugOnlyFiles.map { $0.sourceHint.display })
+  if !allDisplays.isEmpty {
     lines.append("")
-    let groupsToShow: [(String, Int)]
-    if config.groupLimit > 0 && config.groupLimit < ranked.count {
-      lines.append("Files by symbol count (showing first \(config.groupLimit) of \(ranked.count)):")
-      groupsToShow = Array(ranked.prefix(config.groupLimit))
+    lines.append("Debug-only symbols grouped by file (\(allDisplays.count) total):")
+    let sortedDisplays = allDisplays.sorted()
+    let displaysToShow: [String]
+    if config.groupLimit > 0 && config.groupLimit < sortedDisplays.count {
+      lines.append("(showing first \(config.groupLimit) files)")
+      displaysToShow = Array(sortedDisplays.prefix(config.groupLimit))
     } else {
-      lines.append("Files by symbol count (\(ranked.count) total):")
-      groupsToShow = ranked
+      displaysToShow = sortedDisplays
     }
-    for entry in groupsToShow {
-      let file = rightPad(entry.0, to: 36)
-      let countText = leftPad("\(entry.1)", to: 5)
+    for display in displaysToShow {
+      let symbols = (groupedSymbols[display] ?? []).sorted { lhs, rhs in
+        if lhs.symbol.size == rhs.symbol.size {
+          let lhsName = lhs.demangled ?? lhs.symbol.name
+          let rhsName = rhs.demangled ?? rhs.symbol.name
+          return lhsName < rhsName
+        }
+        return lhs.symbol.size > rhs.symbol.size
+      }
+      let fallback = result.debugOnlyFiles.first { $0.sourceHint.display == display }
+      let count = symbols.isEmpty ? (fallback?.symbolCount ?? 0) : symbols.count
+      let file = rightPad(display, to: 36)
+      let countText = leftPad("\(count)", to: 5)
       lines.append("\(file)  \(countText) symbol(s)")
+      if symbols.isEmpty {
+        if let hint = fallback?.sourceHint, let path = diagnosticPath(for: hint, config: config) {
+          lines.append("\(path):1:1: warning: [dead-code] Debug-only object file")
+        } else {
+          lines.append("    Debug-only object file")
+        }
+        continue
+      }
+      for symbol in symbols {
+        var name = symbol.demangled ?? symbol.symbol.name
+        if symbol.demangled == nil, name.hasPrefix("_") {
+          name.removeFirst()
+        }
+        if let note = symbolNote(symbol) {
+          name += " \(note)"
+        }
+        if let path = diagnosticPath(for: symbol, config: config) {
+          lines.append("\(path):1:1: warning: [dead-code] Debug-only symbol \(name)")
+        } else {
+          lines.append("    Debug-only symbol \(name)")
+        }
+      }
     }
   }
   
   return lines
 }
 
+/// Emits diagnostics and writes the textual report to standard output.
+///
+/// - Parameters:
+///   - result: The aggregated analysis containing filtered symbols and file summaries.
+///   - config: The runtime configuration controlling formatting and truncation.
 func printReport(_ result: AnalysisResult, config: Configuration) {
-  emitDiagnostics(for: result.filteredSymbols, config: config)
   for line in reportLines(result, config: config) {
     print(line)
   }

@@ -8,7 +8,7 @@ import Foundation
 ///   - release: Parsed link-map information from the release build.
 ///   - config: Runtime configuration influencing filtering and reporting.
 ///   - sourceIndex: Lookup index for resolving source hints.
-/// - Returns: The computed `AnalysisResult` containing filtered symbols and low-hanging entries.
+/// - Returns: The computed `AnalysisResult` containing filtered symbols and debug-only file entries.
 func analyze(debug: LinkMapData, release: LinkMapData, config: Configuration, sourceIndex: [String: URL]) -> AnalysisResult {
   let releaseSet = Set(release.symbols.map { $0.name })
   var rawCount = 0
@@ -183,17 +183,17 @@ func analyze(debug: LinkMapData, release: LinkMapData, config: Configuration, so
     }
   }
 
-  var lowHanging: [LowHangingFruit] = []
-  lowHanging.reserveCapacity(interestingByObject.count + normalizedDebugObjects.count)
-  var seenLowHangingPaths: Set<String> = []
+  var debugOnlyFiles: [DebugOnlyFile] = []
+  debugOnlyFiles.reserveCapacity(interestingByObject.count + normalizedDebugObjects.count)
+  var seenDebugOnlyPaths: Set<String> = []
   for (path, info) in interestingByObject {
     if objectHasReleaseSymbol.contains(path) { continue }
-    lowHanging.append(LowHangingFruit(objectPath: path, sourceHint: info.hint, debugOnlySize: info.size, symbolCount: info.count))
-    seenLowHangingPaths.insert(path)
+    debugOnlyFiles.append(DebugOnlyFile(objectPath: path, sourceHint: info.hint, debugOnlySize: info.size, symbolCount: info.count))
+    seenDebugOnlyPaths.insert(path)
   }
 
   for (path, object) in normalizedDebugObjects {
-    if seenLowHangingPaths.contains(path) { continue }
+    if seenDebugOnlyPaths.contains(path) { continue }
     if releaseObjectPaths.contains(path) { continue }
     if objectHasReleaseSymbol.contains(path) { continue }
     if shouldIgnoreObject(object, includePods: config.includePods) { continue }
@@ -210,22 +210,22 @@ func analyze(debug: LinkMapData, release: LinkMapData, config: Configuration, so
       continue
     }
     let footprint = debugFootprint[path] ?? (0, 0)
-    lowHanging.append(LowHangingFruit(objectPath: path, sourceHint: hint, debugOnlySize: footprint.size, symbolCount: footprint.count))
-    seenLowHangingPaths.insert(path)
+    debugOnlyFiles.append(DebugOnlyFile(objectPath: path, sourceHint: hint, debugOnlySize: footprint.size, symbolCount: footprint.count))
+    seenDebugOnlyPaths.insert(path)
   }
   var releaseSymbolNameCache: [String: Bool] = [:]
-  lowHanging = lowHanging.filter { entry in
+  debugOnlyFiles = debugOnlyFiles.filter { entry in
     let baseName = URL(fileURLWithPath: entry.objectPath).deletingPathExtension().lastPathComponent
     return !releaseSymbolsContain(baseName, releaseSymbols: release.symbols, cache: &releaseSymbolNameCache)
   }
-  lowHanging.sort {
+  debugOnlyFiles.sort {
     if $0.debugOnlySize == $1.debugOnlySize {
       return $0.sourceHint.display < $1.sourceHint.display
     }
     return $0.debugOnlySize > $1.debugOnlySize
   }
 
-  DeadCodeAnalysis.Logger.logVerbose(config.verbose, "Low-hanging files retained: \(lowHanging.count)")
+  DeadCodeAnalysis.Logger.logVerbose(config.verbose, "Debug-only files retained: \(debugOnlyFiles.count)")
 
   return AnalysisResult(
     totalDebugSymbols: debug.symbols.count,
@@ -234,6 +234,6 @@ func analyze(debug: LinkMapData, release: LinkMapData, config: Configuration, so
     rawDebugOnlySize: rawSize,
     filteredSymbols: filteredSymbols,
     filteredSize: filteredSize,
-    lowHangingFiles: lowHanging
+    debugOnlyFiles: debugOnlyFiles
   )
 }

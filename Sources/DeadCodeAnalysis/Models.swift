@@ -58,11 +58,12 @@ struct AnalysisResult {
   let rawDebugOnlySize: UInt64
   let filteredSymbols: [DebugOnlySymbol]
   let filteredSize: UInt64
-  let lowHangingFiles: [LowHangingFruit]
+  /// Files and object files that contribute exclusively to the debug build.
+  let debugOnlyFiles: [DebugOnlyFile]
 }
 
-/// Grouped diagnostic entry pointing at files with debug-only symbols.
-struct LowHangingFruit {
+/// Summary of a file or object that only appears in the debug build.
+struct DebugOnlyFile {
   let objectPath: String
   let sourceHint: SourceHint
   let debugOnlySize: UInt64
