@@ -1,6 +1,9 @@
 import Foundation
 
 // MARK: - Reporting
+private func bold(_ text: String) -> String {
+  return "➡️\(text)"
+}
 
 /// Returns a human-friendly suffix describing notable debug-only symbols.
 ///
@@ -66,21 +69,27 @@ func diagnosticPath(for symbol: DebugOnlySymbol, config: Configuration) -> Strin
 ///   - config: The runtime configuration controlling formatting and truncation.
 func reportLines(_ result: AnalysisResult, config: Configuration) -> [String] {
   var lines: [String] = []
-  lines.append("Debug link map: \(config.debugURL.path)")
-  lines.append("Release link map: \(config.releaseURL.path)")
-  lines.append("Total debug symbols: \(result.totalDebugSymbols)")
-  lines.append("Total release symbols: \(result.totalReleaseSymbols)")
-  lines.append("Debug-only symbols (raw): \(result.rawDebugOnlyCount) (\(formatBytes(result.rawDebugOnlySize)))")
-  lines.append("Debug-only symbols (filtered): \(result.filteredSymbols.count) (\(formatBytes(result.filteredSize)))")
+  if config.verbose {
+    lines.append("Debug link map: \(config.debugURL.path)")
+    lines.append("Release link map: \(config.releaseURL.path)")
+    lines.append("Total debug symbols: \(result.totalDebugSymbols)")
+    lines.append("Total release symbols: \(result.totalReleaseSymbols)")
+    lines.append("Debug-only symbols (raw): \(result.rawDebugOnlyCount) (\(formatBytes(result.rawDebugOnlySize)))")
+    lines.append("Debug-only symbols (filtered): \(result.filteredSymbols.count) (\(formatBytes(result.filteredSize)))")
+  }
   
   if result.filteredSymbols.isEmpty {
-    lines.append("")
+    if !lines.isEmpty {
+      lines.append("")
+    }
     lines.append("No application-owned debug-only symbols were detected after filtering.")
     return lines
   }
   
   if !result.debugOnlyFiles.isEmpty {
-    lines.append("")
+    if !lines.isEmpty {
+      lines.append("")
+    }
     let debugOnlyEntries: [DebugOnlyFile]
     if config.groupLimit > 0 && config.groupLimit < result.debugOnlyFiles.count {
       lines.append("Files unique to debug build (showing first \(config.groupLimit) of \(result.debugOnlyFiles.count)):")
@@ -92,14 +101,16 @@ func reportLines(_ result: AnalysisResult, config: Configuration) -> [String] {
     for entry in debugOnlyEntries {
       let file = rightPad(entry.sourceHint.display, to: 36)
       let countText = leftPad("\(entry.symbolCount)", to: 5)
-      lines.append("\(file)  \(countText) symbol(s)")
+      lines.append("\(bold(file))  \(countText) symbol(s)")
     }
   }
   
   let groupedSymbols = Dictionary(grouping: result.filteredSymbols, by: { $0.sourceHint.display })
   let allDisplays = Set(groupedSymbols.keys).union(result.debugOnlyFiles.map { $0.sourceHint.display })
   if !allDisplays.isEmpty {
-    lines.append("")
+    if !lines.isEmpty {
+      lines.append("")
+    }
     lines.append("Debug-only symbols grouped by file (\(allDisplays.count) total):")
     let sortedDisplays = allDisplays.sorted()
     let displaysToShow: [String]
@@ -120,17 +131,28 @@ func reportLines(_ result: AnalysisResult, config: Configuration) -> [String] {
       }
       let fallback = result.debugOnlyFiles.first { $0.sourceHint.display == display }
       let count = symbols.isEmpty ? (fallback?.symbolCount ?? 0) : symbols.count
-      let file = rightPad(display, to: 36)
+      let fileLabel = rightPad(display, to: 36)
       let countText = leftPad("\(count)", to: 5)
-      lines.append("\(file)  \(countText) symbol(s)")
+      let fallbackPath = fallback.flatMap { diagnosticPath(for: $0.sourceHint, config: config) }
+
       if symbols.isEmpty {
-        if let hint = fallback?.sourceHint, let path = diagnosticPath(for: hint, config: config) {
-          lines.append("\(path):1:1: warning: [dead-code] Debug-only object file")
+        if let path = fallbackPath {
+          lines.append("\(path):1:1: warning: [dead-code] Debug-only object file \(display)")
         } else {
-          lines.append("    Debug-only object file")
+          lines.append("\(bold(fileLabel))  \(countText) symbol(s)")
+          lines.append("    Debug-only object file \(display)")
         }
         continue
       }
+
+      let headerPath = symbols.compactMap { diagnosticPath(for: $0, config: config) }.first ?? fallbackPath
+      let summary = "\(bold(fileLabel))  \(countText) symbol(s)"
+      if let path = headerPath {
+        lines.append("\(path):1:1: warning: [dead-code] \(summary)")
+      } else {
+        lines.append(summary)
+      }
+
       for symbol in symbols {
         var name = symbol.demangled ?? symbol.symbol.name
         if symbol.demangled == nil, name.hasPrefix("_") {

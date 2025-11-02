@@ -203,14 +203,18 @@ func analyze(debug: LinkMapData, release: LinkMapData, config: Configuration, so
       sourceIndex: sourceIndex,
       literalHint: literalHintsByObject[object.index]
     )
+    var effectiveHint = hint
     if requireSourceMatch && !hint.hasSource {
       if missingSourceSamples.count < 6 {
         missingSourceSamples.append(relativePath(for: URL(fileURLWithPath: object.path), base: config.projectRoot))
       }
-      continue
+      if effectiveHint.display.isEmpty {
+        let fallbackDisplay = relativePath(for: URL(fileURLWithPath: object.path), base: config.projectRoot)
+        effectiveHint = SourceHint(display: fallbackDisplay, url: nil, hasSource: false)
+      }
     }
     let footprint = debugFootprint[path] ?? (0, 0)
-    debugOnlyFiles.append(DebugOnlyFile(objectPath: path, sourceHint: hint, debugOnlySize: footprint.size, symbolCount: footprint.count))
+    debugOnlyFiles.append(DebugOnlyFile(objectPath: path, sourceHint: effectiveHint, debugOnlySize: footprint.size, symbolCount: footprint.count))
     seenDebugOnlyPaths.insert(path)
   }
   var releaseSymbolNameCache: [String: Bool] = [:]
