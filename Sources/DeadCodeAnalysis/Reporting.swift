@@ -25,12 +25,12 @@ func diagnosticPath(for symbol: DebugOnlySymbol, config: Configuration) -> Strin
   guard let projectRoot = config.projectRoot else {
     return display
   }
-
+  
   if display.contains("/") {
     let candidate = projectRoot.appendingPathComponent(display)
     return candidate.path
   }
-
+  
   let prefixes = config.sourcePrefixes.isEmpty ? [""] : config.sourcePrefixes
   for prefix in prefixes {
     let candidate = projectRoot.appendingPathComponent(prefix).appendingPathComponent(display)
@@ -38,7 +38,7 @@ func diagnosticPath(for symbol: DebugOnlySymbol, config: Configuration) -> Strin
       return candidate.path
     }
   }
-
+  
   return projectRoot.appendingPathComponent(display).path
 }
 
@@ -47,11 +47,26 @@ func emitDiagnostics(for symbols: [DebugOnlySymbol], config: Configuration) {
     guard let data = (text + "\n").data(using: .utf8) else { return }
     FileHandle.standardError.write(data)
   }
-
-  for symbol in symbols {
-    guard let path = diagnosticPath(for: symbol, config: config) else { continue }
-    let name = symbol.demangled ?? symbol.symbol.name
-    writeWarning("\(path):1:1: warning: [dead-code] Debug-only symbol \(name)")
+  
+  let groupedByDisplay = Dictionary(grouping: symbols, by: { $0.sourceHint.display })
+  let orderedDisplays = groupedByDisplay.keys.sorted()
+  
+  for display in orderedDisplays {
+    guard let bucket = groupedByDisplay[display] else { continue }
+    let sortedSymbols = bucket.sorted { lhs, rhs in
+      if lhs.symbol.size == rhs.symbol.size {
+        let lhsName = lhs.demangled ?? lhs.symbol.name
+        let rhsName = rhs.demangled ?? rhs.symbol.name
+        return lhsName < rhsName
+      }
+      return lhs.symbol.size > rhs.symbol.size
+    }
+    
+    for symbol in sortedSymbols {
+      guard let path = diagnosticPath(for: symbol, config: config) else { continue }
+      let name = symbol.demangled ?? symbol.symbol.name
+      writeWarning("\(path):1:1: warning: [dead-code] Debug-only symbol \(name)")
+    }
   }
 }
 
@@ -63,13 +78,13 @@ func reportLines(_ result: AnalysisResult, config: Configuration) -> [String] {
   lines.append("Total release symbols: \(result.totalReleaseSymbols)")
   lines.append("Debug-only symbols (raw): \(result.rawDebugOnlyCount) (\(formatBytes(result.rawDebugOnlySize)))")
   lines.append("Debug-only symbols (filtered): \(result.filteredSymbols.count) (\(formatBytes(result.filteredSize)))")
-
+  
   if result.filteredSymbols.isEmpty {
     lines.append("")
     lines.append("No application-owned debug-only symbols were detected after filtering.")
     return lines
   }
-
+  
   if !result.lowHangingFiles.isEmpty {
     lines.append("")
     let lowHangingEntries: [LowHangingFruit]
@@ -86,17 +101,17 @@ func reportLines(_ result: AnalysisResult, config: Configuration) -> [String] {
       lines.append("\(file)  \(countText) symbol(s)")
     }
   }
-
+  
   lines.append("")
   lines.append("Debug-only symbols: \(result.filteredSymbols.count)")
-
+  
   let grouped = Dictionary(grouping: result.filteredSymbols, by: { $0.sourceHint.display })
   let ranked = grouped.map { (key: String, value: [DebugOnlySymbol]) -> (String, Int) in
     (key, value.count)
   }.sorted { lhs, rhs in
     lhs.0 < rhs.0
   }
-
+  
   if !ranked.isEmpty {
     lines.append("")
     let groupsToShow: [(String, Int)]
@@ -130,7 +145,7 @@ func reportLines(_ result: AnalysisResult, config: Configuration) -> [String] {
       }
     }
   }
-
+  
   return lines
 }
 
