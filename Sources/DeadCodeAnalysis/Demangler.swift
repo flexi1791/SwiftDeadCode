@@ -20,7 +20,7 @@ func demangleSymbols(_ names: [String], verbose: Bool) -> [String: String] {
 
   let chunkSize = 200
   let batchCount = Int(ceil(Double(canonicalNames.count) / Double(chunkSize)))
-  DeadCodeAnalysis.Logger.logStatus("Demangling \(canonicalNames.count) symbol(s) across \(batchCount) batch(es)...")
+  DeadCodeAnalysis.Logger.logVerbose(verbose, "Demangling \(canonicalNames.count) symbol(s) across \(batchCount) batch(es)...")
 
   var mapping: [String: String] = [:]
   var canonicalMap: [String: String] = [:]
@@ -75,7 +75,7 @@ func demangleChunk(_ candidates: [String], verbose: Bool, batchIndex: Int, total
     DeadCodeAnalysis.Logger.logVerbose(verbose, "Launching swift-demangle batch \(batchIndex + 1)...")
     try process.run()
   } catch {
-    DeadCodeAnalysis.Logger.logStatus("swift-demangle launch failed for batch \(batchIndex + 1): \(error.localizedDescription)")
+  DeadCodeAnalysis.Logger.logStatus("swift-demangle launch failed for batch \(batchIndex + 1): \(error.localizedDescription)")
     return [:]
   }
 
@@ -99,9 +99,9 @@ func demangleChunk(_ candidates: [String], verbose: Bool, batchIndex: Int, total
   let elapsed = CFAbsoluteTimeGetCurrent() - start
   if process.terminationStatus != 0 {
     if let errorString = String(data: errorData, encoding: .utf8), !errorString.isEmpty {
-      DeadCodeAnalysis.Logger.logStatus("swift-demangle batch \(batchIndex + 1) exited with status \(process.terminationStatus): \(errorString.trimmingCharacters(in: .whitespacesAndNewlines))")
+  DeadCodeAnalysis.Logger.logStatus("swift-demangle batch \(batchIndex + 1) exited with status \(process.terminationStatus): \(errorString.trimmingCharacters(in: .whitespacesAndNewlines))")
     } else {
-      DeadCodeAnalysis.Logger.logStatus(String(format: "swift-demangle batch %d exited with status %d in %.2fs", batchIndex + 1, process.terminationStatus, elapsed))
+  DeadCodeAnalysis.Logger.logStatus(String(format: "swift-demangle batch %d exited with status %d in %.2fs", batchIndex + 1, process.terminationStatus, elapsed))
     }
     return [:]
   }
@@ -143,6 +143,6 @@ func demangleChunk(_ candidates: [String], verbose: Bool, batchIndex: Int, total
   }
   flushCurrent()
 
-  DeadCodeAnalysis.Logger.logStatus(String(format: "Batch %d demangled %d in %.2fs", batchIndex + 1, mapping.count, elapsed))
+  DeadCodeAnalysis.Logger.logVerbose(verbose, String(format: "Batch %d demangled %d in %.2fs", batchIndex + 1, mapping.count, elapsed))
   return mapping
 }
