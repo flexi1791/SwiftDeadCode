@@ -2,7 +2,7 @@ import Foundation
 
 // MARK: - Reporting
 private func bold(_ text: String) -> String {
-  return "➡️\(text)"
+  return "\u{001B}[1m\(text)\u{001B}[0m"
 }
 
 /// Returns a human-friendly suffix describing notable debug-only symbols.
@@ -90,18 +90,25 @@ func reportLines(_ result: AnalysisResult, config: Configuration) -> [String] {
     if !lines.isEmpty {
       lines.append("")
     }
-    let debugOnlyEntries: [DebugOnlyFile]
-    if config.groupLimit > 0 && config.groupLimit < result.debugOnlyFiles.count {
-      lines.append("Files unique to debug build (showing first \(config.groupLimit) of \(result.debugOnlyFiles.count)):")
-      debugOnlyEntries = Array(result.debugOnlyFiles.prefix(config.groupLimit))
+    let sortedEntries = result.debugOnlyFiles.sorted { lhs, rhs in
+      lhs.sourceHint.display < rhs.sourceHint.display
+    }
+    let entriesToShow: [DebugOnlyFile]
+    if config.groupLimit > 0 && config.groupLimit < sortedEntries.count {
+      lines.append("Files unique to debug build (showing first \(config.groupLimit) of \(sortedEntries.count)):")
+      entriesToShow = Array(sortedEntries.prefix(config.groupLimit))
     } else {
       lines.append("Files unique to debug build (no release symbols found):")
-      debugOnlyEntries = result.debugOnlyFiles
+      entriesToShow = sortedEntries
     }
-    for entry in debugOnlyEntries {
+    for entry in entriesToShow {
       let file = rightPad(entry.sourceHint.display, to: 36)
       let countText = leftPad("\(entry.symbolCount)", to: 5)
-      lines.append("\(bold(file))  \(countText) symbol(s)")
+      if let path = diagnosticPath(for: entry.sourceHint, config: config) {
+        lines.append("\(path):1:1: warning: [dead-code] Debug-only object file \(bold(file))  \(countText) symbol(s)")
+      } else {
+        lines.append("\(bold(file))  \(countText) symbol(s)")
+      }
     }
   }
   

@@ -1,5 +1,13 @@
 import Foundation
 
+func isActionableHint(_ hint: SourceHint) -> Bool {
+  let lower = hint.display.lowercased()
+  if lower.isEmpty { return false }
+  if lower.hasPrefix("literal string:") { return false }
+  if lower == "(unknown.o)" { return false }
+  return true
+}
+
 // MARK: - Analysis Pipeline
 
 /// Produces the final analysis by contrasting debug-only symbols with release data.
@@ -31,19 +39,23 @@ func analyze(debug: LinkMapData, release: LinkMapData, config: Configuration, so
   }
 
   var releaseKeepableSymbols: Set<String> = []
-  var releaseFootprint: [String: (size: UInt64, count: Int)] = [:]
+  var releaseFootprintByPath: [String: (size: UInt64, count: Int)] = [:]
+  var releaseFootprintByBaseName: [String: (size: UInt64, count: Int)] = [:]
   for symbol in release.symbols {
+    if let object = release.objects[symbol.objectIndex] {
+      let key = normalizeObjectPath(object.path)
+      let pathFootprint = releaseFootprintByPath[key] ?? (0, 0)
+      releaseFootprintByPath[key] = (pathFootprint.size &+ symbol.size, pathFootprint.count + 1)
+      let baseKey = object.baseName
+      let baseFootprint = releaseFootprintByBaseName[baseKey] ?? (0, 0)
+      releaseFootprintByBaseName[baseKey] = (baseFootprint.size &+ symbol.size, baseFootprint.count + 1)
+    }
     if shouldKeepSymbol(
       symbol.name,
       allowedSuffixes: allowListSuffixes,
       allowedModules: projectModules
     ) {
       releaseKeepableSymbols.insert(symbol.name)
-      if let object = release.objects[symbol.objectIndex] {
-        let key = normalizeObjectPath(object.path)
-        let footprint = releaseFootprint[key] ?? (0, 0)
-        releaseFootprint[key] = (footprint.size &+ symbol.size, footprint.count + 1)
-      }
     }
   }
 
@@ -203,13 +215,15 @@ func analyze(debug: LinkMapData, release: LinkMapData, config: Configuration, so
   var seenDebugOnlyPaths: Set<String> = []
   for (path, info) in interestingByObject {
     if objectHasReleaseSymbol.contains(path) { continue }
+    if !isActionableHint(info.hint) { continue }
     debugOnlyFiles.append(DebugOnlyFile(objectPath: path, sourceHint: info.hint, debugOnlySize: info.size, symbolCount: info.count))
     seenDebugOnlyPaths.insert(path)
   }
 
   for (path, object) in normalizedDebugObjects {
     if seenDebugOnlyPaths.contains(path) { continue }
-  if let releaseInfo = releaseFootprint[path], releaseInfo.count > 0 { continue }
+    if let releaseInfo = releaseFootprintByPath[path], releaseInfo.count > 0 { continue }
+    if let releaseBaseInfo = releaseFootprintByBaseName[object.baseName], releaseBaseInfo.count > 0 { continue }
     if objectHasReleaseSymbol.contains(path) { continue }
     if shouldIgnoreObject(object, includePods: config.includePods) { continue }
     let hint = makeSourceHint(
@@ -229,8 +243,9 @@ func analyze(debug: LinkMapData, release: LinkMapData, config: Configuration, so
       }
     }
     let footprint = debugFootprint[path] ?? (0, 0)
-  let reportedCount = interestingByObject[path]?.count ?? 0
-  debugOnlyFiles.append(DebugOnlyFile(objectPath: path, sourceHint: effectiveHint, debugOnlySize: footprint.size, symbolCount: reportedCount))
+    if !isActionableHint(effectiveHint) { continue }
+    let reportedCount = interestingByObject[path]?.count ?? 0
+    debugOnlyFiles.append(DebugOnlyFile(objectPath: path, sourceHint: effectiveHint, debugOnlySize: footprint.size, symbolCount: reportedCount))
     seenDebugOnlyPaths.insert(path)
   }
   var releaseSymbolNameCache: [String: Bool] = [:]

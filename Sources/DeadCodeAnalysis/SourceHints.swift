@@ -33,7 +33,33 @@ func literalSourceHint(from symbolName: String, projectRoot: URL?, sourceIndex: 
       )
     }
   }
-  return SourceHint(display: trimmed, url: nil, hasSource: false)
+  let pathExtension = URL(fileURLWithPath: trimmed).pathExtension
+  let looksPathLike = trimmed.contains("/") || !pathExtension.isEmpty
+  guard looksPathLike else { return nil }
+
+  if trimmed.hasPrefix("/") {
+    let resolved = URL(fileURLWithPath: trimmed)
+    if FileManager.default.fileExists(atPath: resolved.path) {
+      return SourceHint(
+        display: relativePath(for: resolved, base: projectRoot),
+        url: resolved,
+        hasSource: true
+      )
+    }
+  }
+
+  if let projectRoot {
+    let candidate = projectRoot.appendingPathComponent(trimmed)
+    if FileManager.default.fileExists(atPath: candidate.path) {
+      return SourceHint(
+        display: relativePath(for: candidate, base: projectRoot),
+        url: candidate,
+        hasSource: true
+      )
+    }
+  }
+
+  return nil
 }
 
 /// Derives the best available source hint for a debug-only symbol.
