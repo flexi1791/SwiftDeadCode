@@ -105,9 +105,19 @@ func reportLines(_ result: AnalysisResult, config: Configuration) -> [String] {
   lines.append("")
   lines.append("Debug-only symbols: \(result.filteredSymbols.count)")
   
-  let grouped = Dictionary(grouping: result.filteredSymbols, by: { $0.sourceHint.display })
-  let ranked = grouped.map { (key: String, value: [DebugOnlySymbol]) -> (String, Int) in
-    (key, value.count)
+  var aggregatedCounts: [String: Int] = [:]
+  for symbol in result.filteredSymbols {
+    let display = symbol.sourceHint.display
+    aggregatedCounts[display, default: 0] += 1
+  }
+  for entry in result.lowHangingFiles {
+    let display = entry.sourceHint.display
+    let existing = aggregatedCounts[display] ?? 0
+    let candidate = max(existing, entry.symbolCount)
+    aggregatedCounts[display] = candidate
+  }
+  let ranked = aggregatedCounts.map { (key: String, value: Int) -> (String, Int) in
+    (key, value)
   }.sorted { lhs, rhs in
     lhs.0 < rhs.0
   }
@@ -126,23 +136,6 @@ func reportLines(_ result: AnalysisResult, config: Configuration) -> [String] {
       let file = rightPad(entry.0, to: 36)
       let countText = leftPad("\(entry.1)", to: 5)
       lines.append("\(file)  \(countText) symbol(s)")
-      if let symbolsForFile = grouped[entry.0]?.sorted(by: { lhs, rhs in
-        if lhs.symbol.size == rhs.symbol.size {
-          return (lhs.demangled ?? lhs.symbol.name) < (rhs.demangled ?? rhs.symbol.name)
-        }
-        return lhs.symbol.size > rhs.symbol.size
-      }) {
-        for symbol in symbolsForFile {
-          var name = symbol.demangled ?? symbol.symbol.name
-          if symbol.demangled == nil, name.hasPrefix("_") {
-            name.removeFirst()
-          }
-          if let note = symbolNote(symbol) {
-            name += " \(note)"
-          }
-          lines.append("    \(name)")
-        }
-      }
     }
   }
   
