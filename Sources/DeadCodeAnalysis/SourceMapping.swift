@@ -56,7 +56,7 @@ extension DeadCodeAnalysis {
         return located
       }
 
-      DeadCodeAnalysis.Logger.logVerbose(true, "no match for \(filename) under \(root.path)")
+      // DeadCodeAnalysis.Logger.logVerbose(true, "no match for \(filename) under \(root.path)")
       return nil
     }
   }
