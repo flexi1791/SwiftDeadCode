@@ -34,7 +34,11 @@ let package = Package(
     .testTarget(
       name: "DeadCodeAnalysisTests",
       dependencies: ["DeadCodeAnalysis"],
-      path: "Tests/DeadCodeAnalysisTests"
+      path: "Tests",
+      sources: ["DeadCodeAnalysisTests"],
+      resources: [
+        .copy("Projects")
+      ]
     )
   ]
 )
