@@ -11,27 +11,27 @@ import Foundation
 func analyze(debug: LinkMapData, release: LinkMapData, config: Configuration) -> AnalysisResult {
   var debugData = debug
   var releaseData = release
-
+  
   let totalDebugSymbols = debugData.symbols.count
   let totalReleaseSymbols = releaseData.symbols.count
-
+  
   func isUserSymbol(_ name: String) -> Bool {
     shouldKeepSymbol(name, allowedSuffixes: allowListSuffixes)
   }
-
+  
   // Step 1: drop ignored objects directly from the parsed link-map listings.
   for index in debugData.objects.indices {
     if let object = debugData.objects[index], shouldIgnoreObject(object) {
       debugData.objects[index] = nil
     }
   }
-
+  
   for index in releaseData.objects.indices {
     if let object = releaseData.objects[index], shouldIgnoreObject(object) {
       releaseData.objects[index] = nil
     }
   }
-
+  
   // Step 2: discard symbols that do not belong to user-owned objects or fail the allow list.
   debugData.symbols.removeAll { symbol in
     guard let object = debugData.objects[safe: symbol.objectIndex] ?? nil, !shouldIgnoreObject(object) else {
@@ -39,21 +39,21 @@ func analyze(debug: LinkMapData, release: LinkMapData, config: Configuration) ->
     }
     return !isUserSymbol(symbol.name)
   }
-
+  
   releaseData.symbols.removeAll { symbol in
     guard let object = releaseData.objects[safe: symbol.objectIndex] ?? nil, !shouldIgnoreObject(object) else {
       return true
     }
     return !isUserSymbol(symbol.name)
   }
-
+  
   // Step 3: attach the remaining debug and release symbols to their owning objects.
   for symbol in debugData.symbols {
     guard var object = debugData.objects[safe: symbol.objectIndex] ?? nil else { continue }
     object.debugSymbols.append(symbol)
     debugData.objects[symbol.objectIndex] = object
   }
-
+  
   for symbol in releaseData.symbols {
     guard var object = releaseData.objects[safe: symbol.objectIndex] ?? nil else { continue }
     object.releaseSymbolNames.insert(symbol.name)
@@ -70,7 +70,7 @@ func analyze(debug: LinkMapData, release: LinkMapData, config: Configuration) ->
     }
   )
   let objectIndices = objectIndicesInDebug.union(objectIndicesInRelease)
-
+  
   // Step 5: compute debug-only symbols by removing anything that also appears in release.
   var debugOnlySymbolsByObject: [Int: [SymbolRecord]] = [:]
   for index in objectIndices {
@@ -81,7 +81,7 @@ func analyze(debug: LinkMapData, release: LinkMapData, config: Configuration) ->
       debugOnlySymbolsByObject[index] = unmatched
     }
   }
-
+  
   let demangledMap: [String: String]
   if config.demangle {
     let symbolsToDemangle = debugOnlySymbolsByObject.values.flatMap { $0.map(\.name) }
@@ -89,10 +89,10 @@ func analyze(debug: LinkMapData, release: LinkMapData, config: Configuration) ->
   } else {
     demangledMap = [:]
   }
-
+  
   // Step 6: finalize the per-symbol list after demangled noise filtering.
   var unusedSymbols: [SymbolRecord] = []
-
+  
   for symbols in debugOnlySymbolsByObject.values {
     for var symbol in symbols {
       if let demangled = demangledMap[symbol.name] {
@@ -101,34 +101,23 @@ func analyze(debug: LinkMapData, release: LinkMapData, config: Configuration) ->
         }
         symbol.demangled = cleanDemangledName(demangled, modulesToStrip: [])
       }
-  unusedSymbols.append(symbol)
+      unusedSymbols.append(symbol)
     }
   }
-
+  
   unusedSymbols.sort(by: SymbolRecord.reportComparator(using: debugData.objects))
-
+  
   // Step 7: collect debug objects that ended up without any debug-only symbols.
   var unusedObjects: [ObjectRecord] = []
   for object in debugData.objects.compactMap({ $0 }) {
     if object.debugSymbols.isEmpty {
+      print("XXXXXX Unused file \(object.path) \(object.index)")
       unusedObjects.append(object)
     }
   }
-
-fuck this
-
+  
   unusedObjects.sort()
-
-    let objectSummaries = unusedObjects.map { object in
-      object.path
-    }
-    DeadCodeAnalysis.Logger.logStatus("Unused object files (\(objectSummaries.count)): \(objectSummaries)")
-
-    let symbolSummaries = unusedSymbols.map { symbol in
-      symbol.demangled ?? symbol.name
-    }
-    DeadCodeAnalysis.Logger.logStatus("Unused debug-only symbols (\(symbolSummaries.count)): \(symbolSummaries)")
-
+  
   return AnalysisResult(
     totalDebugSymbols: totalDebugSymbols,
     totalReleaseSymbols: totalReleaseSymbols,

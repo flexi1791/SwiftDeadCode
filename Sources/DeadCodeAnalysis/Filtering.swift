@@ -58,6 +58,10 @@ func shouldKeepSymbol(
     return false
   }
 
+  if isObjectiveCMethodSymbol(name) {
+    return true
+  }
+
   guard let canonical = canonicalMangledName(name) else {
     return false
   }
@@ -74,6 +78,15 @@ func shouldKeepSymbol(
     return allowedModules.contains(module)
   }
   return false
+}
+
+/// Detects Objective-C style method symbols such as `-[Class method:]`.
+private func isObjectiveCMethodSymbol(_ name: String) -> Bool {
+  guard let first = name.first, (first == "-" || first == "+") else { return false }
+  guard name.dropFirst().first == "[" else { return false }
+  guard let closingBracket = name.firstIndex(of: "]") else { return false }
+  let classPortion = name[name.index(name.startIndex, offsetBy: 2)..<closingBracket]
+  return !classPortion.isEmpty
 }
 
 /// Filters demangled names that we know are tooling noise.

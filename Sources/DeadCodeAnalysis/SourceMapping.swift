@@ -79,7 +79,7 @@ func resolveObjectSources(objects: [ObjectRecord?], projectRoot: URL?) -> [Objec
     let sourceURL = resolveSourceURL(forObjectPath: object.path, projectRoot: projectRoot)
     object.sourceURL = sourceURL
     if projectRoot != nil, sourceURL == nil {
-      DeadCodeAnalysis.Logger.logStatus("No source mapping for object: \(object.path)")
+      // DeadCodeAnalysis.Logger.logStatus("No source mapping for object: \(object.path)")
     }
     resolved[index] = object
   }

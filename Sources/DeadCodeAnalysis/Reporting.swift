@@ -126,7 +126,6 @@ func reportLines(_ result: AnalysisResult, config: Configuration) -> [String] {
     if !lines.isEmpty {
       lines.append("")
     }
-    lines.append("Debug-only symbols grouped by file (\(allDisplays.count) total):")
     let sortedDisplays = allDisplays.sorted { lhs, rhs in
       return lhs.localizedCaseInsensitiveCompare(rhs) == .orderedAscending
     }

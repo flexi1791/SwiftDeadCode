@@ -26,6 +26,7 @@ let allowListSuffixes: Set<String> = [
   "FCQ",  // Constructor with context
   "TF",   // Top-level function
   "TFZ",  // Top-level static function
+  "VP",   // Static property
   
   // Structural usage (safe additions)
   "TW",   // Type witness — confirms protocol conformance is linked
@@ -33,7 +34,12 @@ let allowListSuffixes: Set<String> = [
   "Wl",   // Witness table (lowercase L) — variant
   "MN",   // Metadata — emitted only when type is instantiated or referenced
   "MF",   // Metadata function — used for runtime type resolution
-  "AAMA"  // Associated type metadata access — confirms protocol usage with associated types
+  "AAMA",  // Associated type metadata access — confirms protocol usage with associated types
+  
+  //
+  "WXX",
+  "WCPTM",
+  "WCA",
 ]
 
 
