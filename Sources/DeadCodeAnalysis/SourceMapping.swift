@@ -28,15 +28,13 @@ extension DeadCodeAnalysis {
 
       let rootKey = root.standardizedFileURL.path
       if let cached = cache[rootKey]?[filename] {
-        DeadCodeAnalysis.Logger.logVerbose(true, "cached match for \(filename): \(cached.path)")
         return cached
       }
 
       // Try direct match first
       if let located = findSwiftFile(named: filename, in: root) {
-        cache[rootKey, default: [:]][filename] = located
-        DeadCodeAnalysis.Logger.logVerbose(true, "found match for \(filename): \(located.path)")
-        return located
+  cache[rootKey, default: [:]][filename] = located
+  return located
       }
 
       // Try alternate extensions
@@ -59,17 +57,7 @@ extension DeadCodeAnalysis {
   }
 }
 
-private let preferredSourceExtensions: Set<String> = [
-  "swift",
-  "m",
-  "mm",
-  "c",
-  "cc",
-  "cpp",
-  "metal",
-  "h",
-  "hpp"
-]
+private let preferredSourceExtensions: Set<String> = ["swift", "m", "mm", "c", "cc", "cpp", "metal"]
 
 func resolveSourceURL(forObjectPath objectPath: String, projectRoot: URL?) -> URL? {
   let baseName = URL(fileURLWithPath: objectPath).deletingPathExtension().lastPathComponent
@@ -90,7 +78,16 @@ func resolveObjectSources(objects: [ObjectRecord?], projectRoot: URL?) -> [Objec
     guard var object = objects[index] else { continue }
     let sourceURL = resolveSourceURL(forObjectPath: object.path, projectRoot: projectRoot)
     object.sourceURL = sourceURL
+    if projectRoot != nil, sourceURL == nil {
+      DeadCodeAnalysis.Logger.logStatus("No source mapping for object: \(object.path)")
+    }
     resolved[index] = object
   }
   return resolved
+}
+
+extension Collection {
+  subscript(safe index: Index) -> Element? {
+    indices.contains(index) ? self[index] : nil
+  }
 }

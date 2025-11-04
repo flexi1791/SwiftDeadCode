@@ -15,11 +15,6 @@ func analyze(debug: LinkMapData, release: LinkMapData, config: Configuration) ->
   let totalDebugSymbols = debugData.symbols.count
   let totalReleaseSymbols = releaseData.symbols.count
 
-  func userObject(at index: Int, in objects: [ObjectRecord?]) -> ObjectRecord? {
-    guard index >= 0, index < objects.count else { return nil }
-    return objects[index]
-  }
-
   func isUserSymbol(_ name: String) -> Bool {
     shouldKeepSymbol(name, allowedSuffixes: allowListSuffixes)
   }
@@ -39,32 +34,36 @@ func analyze(debug: LinkMapData, release: LinkMapData, config: Configuration) ->
 
   // Step 2: discard symbols that do not belong to user-owned objects or fail the allow list.
   debugData.symbols.removeAll { symbol in
-    guard let object = userObject(at: symbol.objectIndex, in: debugData.objects), !shouldIgnoreObject(object) else {
+    guard let object = debugData.objects[safe: symbol.objectIndex] ?? nil, !shouldIgnoreObject(object) else {
       return true
     }
     return !isUserSymbol(symbol.name)
   }
 
   releaseData.symbols.removeAll { symbol in
-    guard let object = userObject(at: symbol.objectIndex, in: releaseData.objects), !shouldIgnoreObject(object) else {
+    guard let object = releaseData.objects[safe: symbol.objectIndex] ?? nil, !shouldIgnoreObject(object) else {
       return true
     }
     return !isUserSymbol(symbol.name)
   }
 
-  // Step 3: group remaining debug symbols by object for the release comparison.
-  var debugSymbolsByObject: [Int: [SymbolRecord]] = [:]
+  // Step 3: attach the remaining debug and release symbols to their owning objects.
   for symbol in debugData.symbols {
-    debugSymbolsByObject[symbol.objectIndex, default: []].append(symbol)
+    guard var object = debugData.objects[safe: symbol.objectIndex] ?? nil else { continue }
+    object.debugSymbols.append(symbol)
+    debugData.objects[symbol.objectIndex] = object
   }
 
-  // Step 4: catalog release symbols to subtract from the debug set.
-  var releaseSymbolsByObject: [Int: Set<String>] = [:]
   for symbol in releaseData.symbols {
-    releaseSymbolsByObject[symbol.objectIndex, default: []].insert(symbol.name)
+    guard var object = releaseData.objects[safe: symbol.objectIndex] ?? nil else { continue }
+    object.releaseSymbolNames.insert(symbol.name)
+    releaseData.objects[symbol.objectIndex] = object
   }
-
-  let objectIndicesInDebug = Set(debugSymbolsByObject.keys)
+  let objectIndicesInDebug = Set(
+    debugData.objects.enumerated().compactMap { (offset, object) -> Int? in
+      object != nil ? offset : nil
+    }
+  )
   let objectIndicesInRelease = Set(
     releaseData.objects.enumerated().compactMap { (offset, object) -> Int? in
       object != nil ? offset : nil
@@ -75,8 +74,8 @@ func analyze(debug: LinkMapData, release: LinkMapData, config: Configuration) ->
   // Step 5: compute debug-only symbols by removing anything that also appears in release.
   var debugOnlySymbolsByObject: [Int: [SymbolRecord]] = [:]
   for index in objectIndices {
-    let debugSymbols = debugSymbolsByObject[index] ?? []
-    let releaseNames = releaseSymbolsByObject[index] ?? []
+    let debugSymbols = debugData.objects[index]?.debugSymbols ?? []
+    let releaseNames = releaseData.objects[index]?.releaseSymbolNames ?? []
     let unmatched = debugSymbols.filter { !releaseNames.contains($0.name) }
     if !unmatched.isEmpty {
       debugOnlySymbolsByObject[index] = unmatched
@@ -93,7 +92,6 @@ func analyze(debug: LinkMapData, release: LinkMapData, config: Configuration) ->
 
   // Step 6: finalize the per-symbol list after demangled noise filtering.
   var unusedSymbols: [SymbolRecord] = []
-  var unusedSize: UInt64 = 0
 
   for symbols in debugOnlySymbolsByObject.values {
     for var symbol in symbols {
@@ -104,51 +102,37 @@ func analyze(debug: LinkMapData, release: LinkMapData, config: Configuration) ->
         symbol.demangled = cleanDemangledName(demangled, modulesToStrip: [])
       }
   unusedSymbols.append(symbol)
-  unusedSize &+= symbol.size
     }
   }
 
-  unusedSymbols.sort { lhs, rhs in
-    let lhsObject = userObject(at: lhs.objectIndex, in: debugData.objects)
-    let rhsObject = userObject(at: rhs.objectIndex, in: debugData.objects)
-    let lhsDisplay = lhsObject?.path ?? lhs.name
-    let rhsDisplay = rhsObject?.path ?? rhs.name
-    if lhsDisplay.caseInsensitiveCompare(rhsDisplay) != .orderedSame {
-      return lhsDisplay.caseInsensitiveCompare(rhsDisplay) == .orderedAscending
-    }
-    if lhs.size != rhs.size {
-      return lhs.size > rhs.size
-    }
-    let lhsName = lhs.demangled ?? lhs.name
-    let rhsName = rhs.demangled ?? rhs.name
-    return lhsName < rhsName
-  }
+  unusedSymbols.sort(by: SymbolRecord.reportComparator(using: debugData.objects))
 
-  // Step 7: collect objects that appear unused in the release build.
+  // Step 7: collect debug objects that ended up without any debug-only symbols.
   var unusedObjects: [ObjectRecord] = []
-  for index in objectIndices {
-    guard let releaseObject = userObject(at: index, in: releaseData.objects) else { continue }
-    let releaseHasSymbols = !(releaseSymbolsByObject[index]?.isEmpty ?? true)
-    let hasDebugOnlySymbols = !(debugOnlySymbolsByObject[index]?.isEmpty ?? true)
-    if !hasDebugOnlySymbols, !releaseHasSymbols {
-      unusedObjects.append(releaseObject)
+  for object in debugData.objects.compactMap({ $0 }) {
+    if object.debugSymbols.isEmpty {
+      unusedObjects.append(object)
     }
   }
 
-  unusedObjects.sort { lhs, rhs in
-    lhs.path.localizedCaseInsensitiveCompare(rhs.path) == .orderedAscending
-  }
+fuck this
 
-  DeadCodeAnalysis.Logger.logVerbose(
-    config.verbose,
-    "Unused debug-only symbols: \(unusedSymbols.count) (\(formatBytes(unusedSize)))"
-  )
+  unusedObjects.sort()
+
+    let objectSummaries = unusedObjects.map { object in
+      object.path
+    }
+    DeadCodeAnalysis.Logger.logStatus("Unused object files (\(objectSummaries.count)): \(objectSummaries)")
+
+    let symbolSummaries = unusedSymbols.map { symbol in
+      symbol.demangled ?? symbol.name
+    }
+    DeadCodeAnalysis.Logger.logStatus("Unused debug-only symbols (\(symbolSummaries.count)): \(symbolSummaries)")
 
   return AnalysisResult(
     totalDebugSymbols: totalDebugSymbols,
     totalReleaseSymbols: totalReleaseSymbols,
     unusedSymbols: unusedSymbols,
-    unusedSize: unusedSize,
     debugObjects: debugData.objects,
     unusedObjects: unusedObjects
   )

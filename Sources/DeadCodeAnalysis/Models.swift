@@ -3,13 +3,23 @@ import Foundation
 // MARK: - Data Models
 
 /// Summary of an object-file listing extracted from the link map.
-struct ObjectRecord: Equatable {
+struct ObjectRecord: Equatable, Comparable {
   let index: Int
   let path: String
   var sourceURL: URL?
+  var debugSymbols: [SymbolRecord] = []
+  var releaseSymbolNames: Set<String> = []
 
   var baseName: String {
     URL(fileURLWithPath: path).lastPathComponent
+  }
+
+  static func < (lhs: ObjectRecord, rhs: ObjectRecord) -> Bool {
+    let ordering = lhs.path.localizedCaseInsensitiveCompare(rhs.path)
+    if ordering != .orderedSame {
+      return ordering == .orderedAscending
+    }
+    return lhs.index < rhs.index
   }
 }
 
@@ -20,6 +30,31 @@ struct SymbolRecord: Equatable {
   let objectIndex: Int
   let name: String
   var demangled: String? = nil
+}
+
+extension SymbolRecord {
+  static func reportComparator(using objects: [ObjectRecord?]) -> (SymbolRecord, SymbolRecord) -> Bool {
+    { lhs, rhs in
+      let lhsDisplay = displayPath(for: lhs, objects: objects)
+      let rhsDisplay = displayPath(for: rhs, objects: objects)
+      if lhsDisplay.caseInsensitiveCompare(rhsDisplay) != .orderedSame {
+        return lhsDisplay.caseInsensitiveCompare(rhsDisplay) == .orderedAscending
+      }
+      if lhs.size != rhs.size {
+        return lhs.size > rhs.size
+      }
+      let lhsName = lhs.demangled ?? lhs.name
+      let rhsName = rhs.demangled ?? rhs.name
+      return lhsName < rhsName
+    }
+  }
+
+  private static func displayPath(for symbol: SymbolRecord, objects: [ObjectRecord?]) -> String {
+    if let object = objects[safe: symbol.objectIndex] ?? nil {
+      return object.path
+    }
+    return symbol.name
+  }
 }
 
 /// Container for the parsed link-map information required by the analyzer.
@@ -35,7 +70,6 @@ struct AnalysisResult: Equatable {
   let totalDebugSymbols: Int
   let totalReleaseSymbols: Int
   let unusedSymbols: [SymbolRecord]
-  let unusedSize: UInt64
   /// User-owned debug objects keyed by original link-map indices.
   let debugObjects: [ObjectRecord?]
   /// User-owned objects that appear unused in the release map.

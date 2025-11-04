@@ -13,12 +13,12 @@ private func displayName(sourceURL: URL?, objectPath: String?, config: Configura
     }
     return sourceURL.lastPathComponent
   }
-
+  
   if let objectPath {
     let base = URL(fileURLWithPath: objectPath).lastPathComponent
     if !base.isEmpty { return base }
   }
-
+  
   return "(unknown)"
 }
 
@@ -26,12 +26,12 @@ private func contextPath(sourceURL: URL?, objectPath: String?, config: Configura
   if let sourceURL {
     return relativePath(for: sourceURL, base: config.projectRoot)
   }
-
+  
   if let objectPath {
     let url = URL(fileURLWithPath: objectPath)
     return relativePath(for: url, base: config.projectRoot)
   }
-
+  
   return nil
 }
 
@@ -58,18 +58,18 @@ private func diagnosticPath(sourceURL: URL?, objectPath: String?, config: Config
   if let sourceURL {
     return sourceURL.path
   }
-
+  
   guard let projectRoot = config.projectRoot else { return objectPath }
   guard let objectPath, !objectPath.isEmpty else { return nil }
-
+  
   if objectPath.hasPrefix("/") {
     return objectPath
   }
-
+  
   if objectPath.contains("/") {
     return projectRoot.appendingPathComponent(objectPath).path
   }
-
+  
   let prefixes = config.sourcePrefixes.isEmpty ? [""] : config.sourcePrefixes
   for prefix in prefixes {
     let candidate = projectRoot.appendingPathComponent(prefix).appendingPathComponent(objectPath)
@@ -77,7 +77,7 @@ private func diagnosticPath(sourceURL: URL?, objectPath: String?, config: Config
       return candidate.path
     }
   }
-
+  
   return projectRoot.appendingPathComponent(objectPath).path
 }
 
@@ -103,7 +103,7 @@ func reportLines(_ result: AnalysisResult, config: Configuration) -> [String] {
     lines.append("Release link map: \(config.releaseURL.path)")
     lines.append("Total debug symbols: \(result.totalDebugSymbols)")
     lines.append("Total release symbols: \(result.totalReleaseSymbols)")
-  lines.append("Debug-only symbols (unused): \(result.unusedSymbols.count) (\(formatBytes(result.unusedSize)))")
+    lines.append("Debug-only symbols (unused): \(result.unusedSymbols.count)")
   }
   
   if result.unusedSymbols.isEmpty {
@@ -114,13 +114,8 @@ func reportLines(_ result: AnalysisResult, config: Configuration) -> [String] {
     return lines
   }
   
-  func object(for index: Int) -> ObjectRecord? {
-    guard index >= 0, index < result.debugObjects.count else { return nil }
-    return result.debugObjects[index]
-  }
-
   let groupedSymbols = Dictionary(grouping: result.unusedSymbols, by: { symbol in
-    let object = object(for: symbol.objectIndex)
+    let object = result.debugObjects[safe: symbol.objectIndex] ?? nil
     return displayName(sourceURL: object?.sourceURL, objectPath: object?.path, config: config)
   })
   let unusedObjectsByDisplay = Dictionary(grouping: result.unusedObjects, by: { object in
@@ -143,7 +138,7 @@ func reportLines(_ result: AnalysisResult, config: Configuration) -> [String] {
       displaysToShow = sortedDisplays
     }
     for display in displaysToShow {
-  let symbols = (groupedSymbols[display] ?? []).sorted { lhs, rhs in
+      let symbols = (groupedSymbols[display] ?? []).sorted { lhs, rhs in
         if lhs.size == rhs.size {
           let lhsName = lhs.demangled ?? lhs.name
           let rhsName = rhs.demangled ?? rhs.name
@@ -159,7 +154,7 @@ func reportLines(_ result: AnalysisResult, config: Configuration) -> [String] {
       let fallbackContext = unusedObjects.compactMap {
         contextPath(sourceURL: $0.sourceURL, objectPath: $0.path, config: config)
       }.first
-
+      
       if symbols.isEmpty {
         let objectLine = "\(displayName) - unused in release"
         if unusedObjects.count > 1 {
@@ -182,8 +177,8 @@ func reportLines(_ result: AnalysisResult, config: Configuration) -> [String] {
         }
         continue
       }
-
-  let headerPath = symbols.compactMap { diagnosticPath(for: $0, config: config, debugObjects: result.debugObjects) }.first ?? fallbackPath
+      
+      let headerPath = symbols.compactMap { diagnosticPath(for: $0, config: config, debugObjects: result.debugObjects) }.first ?? fallbackPath
       let headerContext: String?
       if let resolvedPath = headerPath {
         if resolvedPath.hasPrefix("/") {
@@ -192,7 +187,7 @@ func reportLines(_ result: AnalysisResult, config: Configuration) -> [String] {
           headerContext = resolvedPath
         }
       } else if let symbolContext = symbols.compactMap({ symbol -> String? in
-        let object = object(for: symbol.objectIndex)
+        let object = result.debugObjects[safe: symbol.objectIndex] ?? nil
         return contextPath(sourceURL: object?.sourceURL, objectPath: object?.path, config: config)
       }).first {
         headerContext = symbolContext
@@ -210,7 +205,7 @@ func reportLines(_ result: AnalysisResult, config: Configuration) -> [String] {
       } else {
         lines.append(summary)
       }
-
+      
       for symbol in symbols {
         var name = symbol.demangled ?? symbol.name
         if symbol.demangled == nil, name.hasPrefix("_") {
