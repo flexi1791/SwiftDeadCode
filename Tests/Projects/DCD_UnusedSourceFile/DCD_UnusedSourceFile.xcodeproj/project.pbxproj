@@ -90,6 +90,7 @@
 				96307C1F2EBA73ED005A8C80 /* Sources */,
 				96307C202EBA73ED005A8C80 /* Frameworks */,
 				96307C212EBA73ED005A8C80 /* Resources */,
+				96307C532EBA746E005A8C80 /* Local Dead Code Analysis */,
 			);
 			buildRules = (
 			);
@@ -212,6 +213,27 @@
 			runOnlyForDeploymentPostprocessing = 0;
 		};
 /* End PBXResourcesBuildPhase section */
+
+/* Begin PBXShellScriptBuildPhase section */
+		96307C532EBA746E005A8C80 /* Local Dead Code Analysis */ = {
+			isa = PBXShellScriptBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+			);
+			inputFileListPaths = (
+			);
+			inputPaths = (
+			);
+			name = "Local Dead Code Analysis";
+			outputFileListPaths = (
+			);
+			outputPaths = (
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+			shellPath = /bin/sh;
+			shellScript = "#!/bin/sh\nset -eo pipefail\n\nSRC_LINKERMAP_DIR=\"${SRCROOT}/linkermap\"\nDEBUG_MAP=\"${SRC_LINKERMAP_DIR}/linkermap_Debug.txt\"\nRELEASE_MAP=\"${SRC_LINKERMAP_DIR}/linkermap_Release.txt\"\nOUTPUT=\"${SRC_LINKERMAP_DIR}/dead_symbols_report.txt\"\n\nPACKAGE_SRC=\"${SRCROOT}/../../..\"\n\nif [ ! -d \"${PACKAGE_SRC}\" ]; then\n  echo \"error: SwiftDeadCode package not found at ${PACKAGE_SRC}\" >&2\n  echo \"error: Make sure the package is checked out locally and retry.\" >&2\n  exit 1\nfi\n\nBUILD_DIR_OVERRIDE=\"$(mktemp -d /tmp/dead-code-analysis-build.XXXXXX)\"\n\ncleanup() {\n  /bin/rm -rf \"${BUILD_DIR_OVERRIDE}\"\n}\ntrap cleanup EXIT\n\nexport DEAD_CODE_ANALYSIS_BUILD_DIR=\"${BUILD_DIR_OVERRIDE}\"\n\nexec /usr/bin/xcrun --sdk macosx swift run --disable-sandbox \\\n  --package-path \"${PACKAGE_SRC}\" \\\n  --build-path \"${BUILD_DIR_OVERRIDE}\" \\\n  dead-code-analysis \\\n  --debug \"${DEBUG_MAP}\" \\\n  --release \"${RELEASE_MAP}\" \\\n  --out \"${OUTPUT}\" \\\n  --verbose \\\n  --demangle\n";
+		};
+/* End PBXShellScriptBuildPhase section */
 
 /* Begin PBXSourcesBuildPhase section */
 		96307C1F2EBA73ED005A8C80 /* Sources */ = {
