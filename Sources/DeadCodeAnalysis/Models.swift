@@ -3,7 +3,7 @@ import Foundation
 // MARK: - Data Models
 
 /// Summary of an object-file listing extracted from the link map.
-struct ObjectRecord {
+struct ObjectRecord: Equatable {
   let index: Int
   let path: String
   var sourceURL: URL?
@@ -14,52 +14,32 @@ struct ObjectRecord {
 }
 
 /// Represents an individual symbol entry inside the link map.
-struct SymbolRecord {
+struct SymbolRecord: Equatable {
   let address: UInt64
   let size: UInt64
   let objectIndex: Int
   let name: String
+  var demangled: String? = nil
 }
 
 /// Container for the parsed link-map information required by the analyzer.
-struct LinkMapData {
+struct LinkMapData: Equatable {
   let path: URL
-  let objects: [Int: ObjectRecord]
-  let symbols: [SymbolRecord]
+  var objects: [ObjectRecord?]
+  var symbols: [SymbolRecord]
   let lineCount: Int
 }
 
-/// Captures a debug-only symbol along with contextual metadata for reporting.
-struct DebugOnlySymbol {
-  let symbol: SymbolRecord
-  let object: ObjectRecord?
-  var demangled: String?
-}
-
-/// Candidate symbol awaiting allow-list filtering.
-struct CandidateSymbol {
-  let symbol: SymbolRecord
-  let object: ObjectRecord?
-}
-
 /// Aggregated output of the debug-vs-release comparison.
-struct AnalysisResult {
+struct AnalysisResult: Equatable {
   let totalDebugSymbols: Int
   let totalReleaseSymbols: Int
-  let rawDebugOnlyCount: Int
-  let rawDebugOnlySize: UInt64
-  let filteredSymbols: [DebugOnlySymbol]
-  let filteredSize: UInt64
-  /// Files and object files that contribute exclusively to the debug build.
-  let debugOnlyFiles: [DebugOnlyFile]
-}
-
-/// Summary of a file or object that only appears in the debug build.
-struct DebugOnlyFile {
-  let objectPath: String
-  let sourceURL: URL?
-  let debugOnlySize: UInt64
-  let symbolCount: Int
+  let unusedSymbols: [SymbolRecord]
+  let unusedSize: UInt64
+  /// User-owned debug objects keyed by original link-map indices.
+  let debugObjects: [ObjectRecord?]
+  /// User-owned objects that appear unused in the release map.
+  let unusedObjects: [ObjectRecord]
 }
 
 // MARK: - CLI Configuration

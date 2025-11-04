@@ -59,7 +59,17 @@ extension DeadCodeAnalysis {
   }
 }
 
-private let preferredSourceExtensions: Set<String> = ["swift", "m", "mm", "c", "cc", "cpp", "metal"]
+private let preferredSourceExtensions: Set<String> = [
+  "swift",
+  "m",
+  "mm",
+  "c",
+  "cc",
+  "cpp",
+  "metal",
+  "h",
+  "hpp"
+]
 
 func resolveSourceURL(forObjectPath objectPath: String, projectRoot: URL?) -> URL? {
   let baseName = URL(fileURLWithPath: objectPath).deletingPathExtension().lastPathComponent
@@ -74,13 +84,13 @@ func resolveSourceURL(forObjectPath objectPath: String, projectRoot: URL?) -> UR
   return nil
 }
 
-func resolveObjectSources(objects: [Int: ObjectRecord], projectRoot: URL?) -> [Int: ObjectRecord] {
+func resolveObjectSources(objects: [ObjectRecord?], projectRoot: URL?) -> [ObjectRecord?] {
   var resolved = objects
-  for (index, object) in objects {
+  for index in objects.indices {
+    guard var object = objects[index] else { continue }
     let sourceURL = resolveSourceURL(forObjectPath: object.path, projectRoot: projectRoot)
-    var updated = object
-    updated.sourceURL = sourceURL
-    resolved[index] = updated
+    object.sourceURL = sourceURL
+    resolved[index] = object
   }
   return resolved
 }

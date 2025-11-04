@@ -38,8 +38,8 @@ private func contextPath(sourceURL: URL?, objectPath: String?, config: Configura
 /// Returns a human-friendly suffix describing notable debug-only symbols.
 ///
 /// - Parameter symbol: The debug-only symbol being evaluated for annotations.
-func symbolNote(_ symbol: DebugOnlySymbol) -> String? {
-  let lowered = (symbol.demangled ?? symbol.symbol.name).lowercased()
+func symbolNote(_ symbol: SymbolRecord) -> String? {
+  let lowered = (symbol.demangled ?? symbol.name).lowercased()
   if lowered.contains("previewprovider") || lowered.contains(".previews") {
     return "[Preview]"
   }
@@ -59,29 +59,26 @@ private func diagnosticPath(sourceURL: URL?, objectPath: String?, config: Config
     return sourceURL.path
   }
 
-  guard let fallback = objectPath, !fallback.isEmpty else { return nil }
+  guard let projectRoot = config.projectRoot else { return objectPath }
+  guard let objectPath, !objectPath.isEmpty else { return nil }
 
-  if fallback.hasPrefix("/") {
-    return fallback
+  if objectPath.hasPrefix("/") {
+    return objectPath
   }
 
-  guard let projectRoot = config.projectRoot else {
-    return fallback
-  }
-
-  if fallback.contains("/") {
-    return projectRoot.appendingPathComponent(fallback).path
+  if objectPath.contains("/") {
+    return projectRoot.appendingPathComponent(objectPath).path
   }
 
   let prefixes = config.sourcePrefixes.isEmpty ? [""] : config.sourcePrefixes
   for prefix in prefixes {
-    let candidate = projectRoot.appendingPathComponent(prefix).appendingPathComponent(fallback)
+    let candidate = projectRoot.appendingPathComponent(prefix).appendingPathComponent(objectPath)
     if FileManager.default.fileExists(atPath: candidate.path) {
       return candidate.path
     }
   }
 
-  return projectRoot.appendingPathComponent(fallback).path
+  return projectRoot.appendingPathComponent(objectPath).path
 }
 
 /// Resolves a filesystem path suitable for Xcode-style diagnostics using symbol metadata.
@@ -89,14 +86,15 @@ private func diagnosticPath(sourceURL: URL?, objectPath: String?, config: Config
 /// - Parameters:
 ///   - symbol: The debug-only symbol whose hint should be resolved.
 ///   - config: The runtime configuration containing path resolution preferences.
-func diagnosticPath(for symbol: DebugOnlySymbol, config: Configuration) -> String? {
-  diagnosticPath(sourceURL: symbol.object?.sourceURL, objectPath: symbol.object?.path, config: config)
+func diagnosticPath(for symbol: SymbolRecord, config: Configuration, debugObjects: [ObjectRecord?]) -> String? {
+  let object = symbol.objectIndex >= 0 && symbol.objectIndex < debugObjects.count ? debugObjects[symbol.objectIndex] : nil
+  return diagnosticPath(sourceURL: object?.sourceURL, objectPath: object?.path, config: config)
 }
 
 /// Produces human-readable report lines describing the analysis results.
 ///
 /// - Parameters:
-///   - result: The aggregated analysis containing filtered symbols and file summaries.
+///   - result: The aggregated analysis containing unused symbols and file summaries.
 ///   - config: The runtime configuration controlling formatting and truncation.
 func reportLines(_ result: AnalysisResult, config: Configuration) -> [String] {
   var lines: [String] = []
@@ -105,11 +103,10 @@ func reportLines(_ result: AnalysisResult, config: Configuration) -> [String] {
     lines.append("Release link map: \(config.releaseURL.path)")
     lines.append("Total debug symbols: \(result.totalDebugSymbols)")
     lines.append("Total release symbols: \(result.totalReleaseSymbols)")
-    lines.append("Debug-only symbols (raw): \(result.rawDebugOnlyCount) (\(formatBytes(result.rawDebugOnlySize)))")
-    lines.append("Debug-only symbols (filtered): \(result.filteredSymbols.count) (\(formatBytes(result.filteredSize)))")
+  lines.append("Debug-only symbols (unused): \(result.unusedSymbols.count) (\(formatBytes(result.unusedSize)))")
   }
   
-  if result.filteredSymbols.isEmpty {
+  if result.unusedSymbols.isEmpty {
     if !lines.isEmpty {
       lines.append("")
     }
@@ -117,13 +114,19 @@ func reportLines(_ result: AnalysisResult, config: Configuration) -> [String] {
     return lines
   }
   
-  let groupedSymbols = Dictionary(grouping: result.filteredSymbols, by: { symbol in
-    displayName(sourceURL: symbol.object?.sourceURL, objectPath: symbol.object?.path, config: config)
+  func object(for index: Int) -> ObjectRecord? {
+    guard index >= 0, index < result.debugObjects.count else { return nil }
+    return result.debugObjects[index]
+  }
+
+  let groupedSymbols = Dictionary(grouping: result.unusedSymbols, by: { symbol in
+    let object = object(for: symbol.objectIndex)
+    return displayName(sourceURL: object?.sourceURL, objectPath: object?.path, config: config)
   })
-  let debugOnlyGroups = Dictionary(grouping: result.debugOnlyFiles, by: { file in
-    displayName(sourceURL: file.sourceURL, objectPath: file.objectPath, config: config)
+  let unusedObjectsByDisplay = Dictionary(grouping: result.unusedObjects, by: { object in
+    displayName(sourceURL: object.sourceURL, objectPath: object.path, config: config)
   })
-  let allDisplays = Set(groupedSymbols.keys).union(debugOnlyGroups.keys)
+  let allDisplays = Set(groupedSymbols.keys).union(unusedObjectsByDisplay.keys)
   if !allDisplays.isEmpty {
     if !lines.isEmpty {
       lines.append("")
@@ -140,27 +143,30 @@ func reportLines(_ result: AnalysisResult, config: Configuration) -> [String] {
       displaysToShow = sortedDisplays
     }
     for display in displaysToShow {
-      let symbols = (groupedSymbols[display] ?? []).sorted { lhs, rhs in
-        if lhs.symbol.size == rhs.symbol.size {
-          let lhsName = lhs.demangled ?? lhs.symbol.name
-          let rhsName = rhs.demangled ?? rhs.symbol.name
+  let symbols = (groupedSymbols[display] ?? []).sorted { lhs, rhs in
+        if lhs.size == rhs.size {
+          let lhsName = lhs.demangled ?? lhs.name
+          let rhsName = rhs.demangled ?? rhs.name
           return lhsName < rhsName
         }
-        return lhs.symbol.size > rhs.symbol.size
+        return lhs.size > rhs.size
       }
-      let fallbackEntries = debugOnlyGroups[display] ?? []
-      let fallback = fallbackEntries.first
+      let unusedObjects = unusedObjectsByDisplay[display] ?? []
       let displayName = display.isEmpty ? "(unknown)" : display
-      let fallbackPath = fallback.flatMap { diagnosticPath(sourceURL: $0.sourceURL, objectPath: $0.objectPath, config: config) }
-      let fallbackContext = fallback.flatMap { contextPath(sourceURL: $0.sourceURL, objectPath: $0.objectPath, config: config) }
+      let fallbackPath = unusedObjects.compactMap {
+        diagnosticPath(sourceURL: $0.sourceURL, objectPath: $0.path, config: config)
+      }.first
+      let fallbackContext = unusedObjects.compactMap {
+        contextPath(sourceURL: $0.sourceURL, objectPath: $0.path, config: config)
+      }.first
 
       if symbols.isEmpty {
         let objectLine = "\(displayName) - unused in release"
-        if fallbackEntries.count > 1 {
-          for entry in fallbackEntries {
-            let context = contextPath(sourceURL: entry.sourceURL, objectPath: entry.objectPath, config: config)
+        if unusedObjects.count > 1 {
+          for object in unusedObjects {
+            let context = contextPath(sourceURL: object.sourceURL, objectPath: object.path, config: config)
             let message = context != nil && context != displayName ? "\(objectLine) (\(context!))" : objectLine
-            if let path = diagnosticPath(sourceURL: entry.sourceURL, objectPath: entry.objectPath, config: config) {
+            if let path = diagnosticPath(sourceURL: object.sourceURL, objectPath: object.path, config: config) {
               lines.append("\(path):1:1: warning: \(message)")
             } else {
               lines.append(message)
@@ -177,7 +183,7 @@ func reportLines(_ result: AnalysisResult, config: Configuration) -> [String] {
         continue
       }
 
-      let headerPath = symbols.compactMap { diagnosticPath(for: $0, config: config) }.first ?? fallbackPath
+  let headerPath = symbols.compactMap { diagnosticPath(for: $0, config: config, debugObjects: result.debugObjects) }.first ?? fallbackPath
       let headerContext: String?
       if let resolvedPath = headerPath {
         if resolvedPath.hasPrefix("/") {
@@ -185,7 +191,10 @@ func reportLines(_ result: AnalysisResult, config: Configuration) -> [String] {
         } else {
           headerContext = resolvedPath
         }
-      } else if let symbolContext = symbols.compactMap({ contextPath(sourceURL: $0.object?.sourceURL, objectPath: $0.object?.path, config: config) }).first {
+      } else if let symbolContext = symbols.compactMap({ symbol -> String? in
+        let object = object(for: symbol.objectIndex)
+        return contextPath(sourceURL: object?.sourceURL, objectPath: object?.path, config: config)
+      }).first {
         headerContext = symbolContext
       } else {
         headerContext = fallbackContext
@@ -203,14 +212,14 @@ func reportLines(_ result: AnalysisResult, config: Configuration) -> [String] {
       }
 
       for symbol in symbols {
-        var name = symbol.demangled ?? symbol.symbol.name
+        var name = symbol.demangled ?? symbol.name
         if symbol.demangled == nil, name.hasPrefix("_") {
           name.removeFirst()
         }
         if let note = symbolNote(symbol) {
           name += " \(note)"
         }
-        if let path = diagnosticPath(for: symbol, config: config) {
+        if let path = diagnosticPath(for: symbol, config: config, debugObjects: result.debugObjects) {
           lines.append("\(path):1:1: warning:    \(name)")
         } else {
           lines.append("    \(name)")
@@ -225,7 +234,7 @@ func reportLines(_ result: AnalysisResult, config: Configuration) -> [String] {
 /// Writes the textual report, including grouped diagnostics, to standard output.
 ///
 /// - Parameters:
-///   - result: The aggregated analysis containing filtered symbols and file summaries.
+///   - result: The aggregated analysis containing unused symbols and file summaries.
 ///   - config: The runtime configuration controlling formatting and truncation.
 func printReport(_ result: AnalysisResult, config: Configuration) {
   for line in reportLines(result, config: config) {

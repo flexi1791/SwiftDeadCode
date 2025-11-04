@@ -26,7 +26,7 @@ func shouldIgnoreObject(_ object: ObjectRecord) -> Bool {
 func shouldKeepSymbol(
   _ name: String,
   allowedSuffixes: Set<String>,
-  allowedModules: Set<String>
+  allowedModules: Set<String> = []
 ) -> Bool {
   let lower = name.lowercased()
   if nonSwiftNoiseTokensLowercased.contains(where: { lower.contains($0) }) {
@@ -99,18 +99,4 @@ func shouldIgnoreDemangledSymbol(_ name: String) -> Bool {
 /// - Returns: A standardized absolute path.
 func normalizeObjectPath(_ path: String) -> String {
   URL(fileURLWithPath: path).standardizedFileURL.path
-}
-
-/// Checks whether a release symbol list already references a given basename.
-/// - Parameters:
-///   - baseName: The basename to search for.
-///   - releaseSymbols: The collection of release symbol records.
-///   - cache: A lookup cache keyed by basename for repeated queries.
-/// - Returns: `true` when the basename appears in the release symbols.
-func releaseSymbolsContain(_ baseName: String, releaseSymbols: [SymbolRecord], cache: inout [String: Bool]) -> Bool {
-  if baseName.count < 3 { return false }
-  if let cached = cache[baseName] { return cached }
-  let found = releaseSymbols.contains { $0.name.contains(baseName) }
-  cache[baseName] = found
-  return found
 }

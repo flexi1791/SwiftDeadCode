@@ -10,7 +10,7 @@ func parseLinkMap(at url: URL) throws -> LinkMapData {
   let content = try String(contentsOf: url, encoding: .utf8)
   enum Section { case header, objects, sections, symbols, done }
   var section: Section = .header
-  var objects: [Int: ObjectRecord] = [:]
+  var objects: [ObjectRecord?] = []
   var symbols: [SymbolRecord] = []
   let objectRegex = try NSRegularExpression(pattern: #"\[\s*(\d+)\]\s+(.+)"#)
   let symbolRegex = try NSRegularExpression(pattern: #"0x([0-9A-Fa-f]+)\s+0x([0-9A-Fa-f]+)\s+\[\s*(\d+)\]\s+(.+)"#)
@@ -29,7 +29,11 @@ func parseLinkMap(at url: URL) throws -> LinkMapData {
         let indexString = ns.substring(with: match.range(at: 1))
         let path = ns.substring(with: match.range(at: 2))
         if let idx = Int(indexString) {
-          objects[idx] = ObjectRecord(index: idx, path: path, sourceURL: nil)
+          let record = ObjectRecord(index: idx, path: path, sourceURL: nil)
+          if idx >= objects.count {
+            objects.append(contentsOf: Array(repeating: nil, count: idx - objects.count + 1))
+          }
+          objects[idx] = record
         }
       }
     case .symbols:

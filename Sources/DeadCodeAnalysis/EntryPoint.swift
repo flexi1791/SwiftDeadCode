@@ -9,10 +9,13 @@ public func runDeadCodeAnalysis() {
     let releaseMap = try parseLinkMap(at: config.releaseURL)
     DeadCodeAnalysis.Logger.logStatus("Parsed \(releaseMap.path.lastPathComponent): \(releaseMap.lineCount) lines")
     let resolvedDebugObjects = resolveObjectSources(objects: debugMap.objects, projectRoot: config.projectRoot)
-    let resolvedCount = resolvedDebugObjects.values.filter { $0.sourceURL != nil }.count
-    DeadCodeAnalysis.Logger.logVerbose(config.verbose, "Resolved source paths for \(resolvedCount) of \(resolvedDebugObjects.count) objects")
+    let resolvedReleaseObjects = resolveObjectSources(objects: releaseMap.objects, projectRoot: config.projectRoot)
+    let resolvedCount = resolvedDebugObjects.compactMap { $0?.sourceURL }.count
+    let totalObjects = resolvedDebugObjects.compactMap { $0 }.count
+    DeadCodeAnalysis.Logger.logVerbose(config.verbose, "Resolved source paths for \(resolvedCount) of \(totalObjects) objects")
     let debugWithSources = LinkMapData(path: debugMap.path, objects: resolvedDebugObjects, symbols: debugMap.symbols, lineCount: debugMap.lineCount)
-    let analysis = analyze(debug: debugWithSources, release: releaseMap, config: config)
+    let releaseWithSources = LinkMapData(path: releaseMap.path, objects: resolvedReleaseObjects, symbols: releaseMap.symbols, lineCount: releaseMap.lineCount)
+    let analysis = analyze(debug: debugWithSources, release: releaseWithSources, config: config)
     printReport(analysis, config: config)
     if let outputURL = config.outputURL {
       let lines = reportLines(analysis, config: config)
