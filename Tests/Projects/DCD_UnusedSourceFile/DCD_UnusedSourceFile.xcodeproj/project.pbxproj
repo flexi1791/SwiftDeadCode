@@ -6,27 +6,13 @@
 	objectVersion = 77;
 	objects = {
 
-/* Begin PBXContainerItemProxy section */
-		96307C312EBA73EE005A8C80 /* PBXContainerItemProxy */ = {
-			isa = PBXContainerItemProxy;
-			containerPortal = 96307C1B2EBA73ED005A8C80 /* Project object */;
-			proxyType = 1;
-			remoteGlobalIDString = 96307C222EBA73ED005A8C80;
-			remoteInfo = DCD_UnusedSourceFile;
-		};
-		96307C3B2EBA73EE005A8C80 /* PBXContainerItemProxy */ = {
-			isa = PBXContainerItemProxy;
-			containerPortal = 96307C1B2EBA73ED005A8C80 /* Project object */;
-			proxyType = 1;
-			remoteGlobalIDString = 96307C222EBA73ED005A8C80;
-			remoteInfo = DCD_UnusedSourceFile;
-		};
-/* End PBXContainerItemProxy section */
+/* Begin PBXBuildFile section */
+		96307C6D2EBA75CD005A8C80 /* deadcode.xcfilelist in Resources */ = {isa = PBXBuildFile; fileRef = 96307C6B2EBA75BF005A8C80 /* deadcode.xcfilelist */; };
+/* End PBXBuildFile section */
 
 /* Begin PBXFileReference section */
 		96307C232EBA73ED005A8C80 /* DCD_UnusedSourceFile.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = DCD_UnusedSourceFile.app; sourceTree = BUILT_PRODUCTS_DIR; };
-		96307C302EBA73EE005A8C80 /* DCD_UnusedSourceFileTests.xctest */ = {isa = PBXFileReference; explicitFileType = wrapper.cfbundle; includeInIndex = 0; path = DCD_UnusedSourceFileTests.xctest; sourceTree = BUILT_PRODUCTS_DIR; };
-		96307C3A2EBA73EE005A8C80 /* DCD_UnusedSourceFileUITests.xctest */ = {isa = PBXFileReference; explicitFileType = wrapper.cfbundle; includeInIndex = 0; path = DCD_UnusedSourceFileUITests.xctest; sourceTree = BUILT_PRODUCTS_DIR; };
+		96307C6B2EBA75BF005A8C80 /* deadcode.xcfilelist */ = {isa = PBXFileReference; lastKnownFileType = text.xcfilelist; path = deadcode.xcfilelist; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFileSystemSynchronizedRootGroup section */
@@ -45,26 +31,13 @@
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
-		96307C2D2EBA73EE005A8C80 /* Frameworks */ = {
-			isa = PBXFrameworksBuildPhase;
-			buildActionMask = 2147483647;
-			files = (
-			);
-			runOnlyForDeploymentPostprocessing = 0;
-		};
-		96307C372EBA73EE005A8C80 /* Frameworks */ = {
-			isa = PBXFrameworksBuildPhase;
-			buildActionMask = 2147483647;
-			files = (
-			);
-			runOnlyForDeploymentPostprocessing = 0;
-		};
 /* End PBXFrameworksBuildPhase section */
 
 /* Begin PBXGroup section */
 		96307C1A2EBA73ED005A8C80 = {
 			isa = PBXGroup;
 			children = (
+				96307C6B2EBA75BF005A8C80 /* deadcode.xcfilelist */,
 				96307C252EBA73ED005A8C80 /* DCD_UnusedSourceFile */,
 				96307C242EBA73ED005A8C80 /* Products */,
 			);
@@ -74,8 +47,6 @@
 			isa = PBXGroup;
 			children = (
 				96307C232EBA73ED005A8C80 /* DCD_UnusedSourceFile.app */,
-				96307C302EBA73EE005A8C80 /* DCD_UnusedSourceFileTests.xctest */,
-				96307C3A2EBA73EE005A8C80 /* DCD_UnusedSourceFileUITests.xctest */,
 			);
 			name = Products;
 			sourceTree = "<group>";
@@ -106,46 +77,6 @@
 			productReference = 96307C232EBA73ED005A8C80 /* DCD_UnusedSourceFile.app */;
 			productType = "com.apple.product-type.application";
 		};
-		96307C2F2EBA73EE005A8C80 /* DCD_UnusedSourceFileTests */ = {
-			isa = PBXNativeTarget;
-			buildConfigurationList = 96307C472EBA73EE005A8C80 /* Build configuration list for PBXNativeTarget "DCD_UnusedSourceFileTests" */;
-			buildPhases = (
-				96307C2C2EBA73EE005A8C80 /* Sources */,
-				96307C2D2EBA73EE005A8C80 /* Frameworks */,
-				96307C2E2EBA73EE005A8C80 /* Resources */,
-			);
-			buildRules = (
-			);
-			dependencies = (
-				96307C322EBA73EE005A8C80 /* PBXTargetDependency */,
-			);
-			name = DCD_UnusedSourceFileTests;
-			packageProductDependencies = (
-			);
-			productName = DCD_UnusedSourceFileTests;
-			productReference = 96307C302EBA73EE005A8C80 /* DCD_UnusedSourceFileTests.xctest */;
-			productType = "com.apple.product-type.bundle.unit-test";
-		};
-		96307C392EBA73EE005A8C80 /* DCD_UnusedSourceFileUITests */ = {
-			isa = PBXNativeTarget;
-			buildConfigurationList = 96307C4A2EBA73EE005A8C80 /* Build configuration list for PBXNativeTarget "DCD_UnusedSourceFileUITests" */;
-			buildPhases = (
-				96307C362EBA73EE005A8C80 /* Sources */,
-				96307C372EBA73EE005A8C80 /* Frameworks */,
-				96307C382EBA73EE005A8C80 /* Resources */,
-			);
-			buildRules = (
-			);
-			dependencies = (
-				96307C3C2EBA73EE005A8C80 /* PBXTargetDependency */,
-			);
-			name = DCD_UnusedSourceFileUITests;
-			packageProductDependencies = (
-			);
-			productName = DCD_UnusedSourceFileUITests;
-			productReference = 96307C3A2EBA73EE005A8C80 /* DCD_UnusedSourceFileUITests.xctest */;
-			productType = "com.apple.product-type.bundle.ui-testing";
-		};
 /* End PBXNativeTarget section */
 
 /* Begin PBXProject section */
@@ -158,14 +89,6 @@
 				TargetAttributes = {
 					96307C222EBA73ED005A8C80 = {
 						CreatedOnToolsVersion = 26.0.1;
-					};
-					96307C2F2EBA73EE005A8C80 = {
-						CreatedOnToolsVersion = 26.0.1;
-						TestTargetID = 96307C222EBA73ED005A8C80;
-					};
-					96307C392EBA73EE005A8C80 = {
-						CreatedOnToolsVersion = 26.0.1;
-						TestTargetID = 96307C222EBA73ED005A8C80;
 					};
 				};
 			};
@@ -184,8 +107,6 @@
 			projectRoot = "";
 			targets = (
 				96307C222EBA73ED005A8C80 /* DCD_UnusedSourceFile */,
-				96307C2F2EBA73EE005A8C80 /* DCD_UnusedSourceFileTests */,
-				96307C392EBA73EE005A8C80 /* DCD_UnusedSourceFileUITests */,
 			);
 		};
 /* End PBXProject section */
@@ -195,20 +116,7 @@
 			isa = PBXResourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
-			);
-			runOnlyForDeploymentPostprocessing = 0;
-		};
-		96307C2E2EBA73EE005A8C80 /* Resources */ = {
-			isa = PBXResourcesBuildPhase;
-			buildActionMask = 2147483647;
-			files = (
-			);
-			runOnlyForDeploymentPostprocessing = 0;
-		};
-		96307C382EBA73EE005A8C80 /* Resources */ = {
-			isa = PBXResourcesBuildPhase;
-			buildActionMask = 2147483647;
-			files = (
+				96307C6D2EBA75CD005A8C80 /* deadcode.xcfilelist in Resources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -221,6 +129,7 @@
 			files = (
 			);
 			inputFileListPaths = (
+				"$(SRCROOT)/deadcode.xcfilelist",
 			);
 			inputPaths = (
 			);
@@ -243,34 +152,7 @@
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
-		96307C2C2EBA73EE005A8C80 /* Sources */ = {
-			isa = PBXSourcesBuildPhase;
-			buildActionMask = 2147483647;
-			files = (
-			);
-			runOnlyForDeploymentPostprocessing = 0;
-		};
-		96307C362EBA73EE005A8C80 /* Sources */ = {
-			isa = PBXSourcesBuildPhase;
-			buildActionMask = 2147483647;
-			files = (
-			);
-			runOnlyForDeploymentPostprocessing = 0;
-		};
 /* End PBXSourcesBuildPhase section */
-
-/* Begin PBXTargetDependency section */
-		96307C322EBA73EE005A8C80 /* PBXTargetDependency */ = {
-			isa = PBXTargetDependency;
-			target = 96307C222EBA73ED005A8C80 /* DCD_UnusedSourceFile */;
-			targetProxy = 96307C312EBA73EE005A8C80 /* PBXContainerItemProxy */;
-		};
-		96307C3C2EBA73EE005A8C80 /* PBXTargetDependency */ = {
-			isa = PBXTargetDependency;
-			target = 96307C222EBA73ED005A8C80 /* DCD_UnusedSourceFile */;
-			targetProxy = 96307C3B2EBA73EE005A8C80 /* PBXContainerItemProxy */;
-		};
-/* End PBXTargetDependency section */
 
 /* Begin XCBuildConfiguration section */
 		96307C422EBA73EE005A8C80 /* Debug */ = {
@@ -458,90 +340,6 @@
 			};
 			name = Release;
 		};
-		96307C482EBA73EE005A8C80 /* Debug */ = {
-			isa = XCBuildConfiguration;
-			buildSettings = {
-				BUNDLE_LOADER = "$(TEST_HOST)";
-				CODE_SIGN_STYLE = Automatic;
-				CURRENT_PROJECT_VERSION = 1;
-				DEVELOPMENT_TEAM = 33K3MKA36Z;
-				GENERATE_INFOPLIST_FILE = YES;
-				IPHONEOS_DEPLOYMENT_TARGET = 26.0;
-				MARKETING_VERSION = 1.0;
-				PRODUCT_BUNDLE_IDENTIFIER = "com.1791entertainment.DCD-UnusedSourceFileTests";
-				PRODUCT_NAME = "$(TARGET_NAME)";
-				STRING_CATALOG_GENERATE_SYMBOLS = NO;
-				SWIFT_APPROACHABLE_CONCURRENCY = YES;
-				SWIFT_EMIT_LOC_STRINGS = NO;
-				SWIFT_UPCOMING_FEATURE_MEMBER_IMPORT_VISIBILITY = YES;
-				SWIFT_VERSION = 5.0;
-				TARGETED_DEVICE_FAMILY = "1,2";
-				TEST_HOST = "$(BUILT_PRODUCTS_DIR)/DCD_UnusedSourceFile.app/$(BUNDLE_EXECUTABLE_FOLDER_PATH)/DCD_UnusedSourceFile";
-			};
-			name = Debug;
-		};
-		96307C492EBA73EE005A8C80 /* Release */ = {
-			isa = XCBuildConfiguration;
-			buildSettings = {
-				BUNDLE_LOADER = "$(TEST_HOST)";
-				CODE_SIGN_STYLE = Automatic;
-				CURRENT_PROJECT_VERSION = 1;
-				DEVELOPMENT_TEAM = 33K3MKA36Z;
-				GENERATE_INFOPLIST_FILE = YES;
-				IPHONEOS_DEPLOYMENT_TARGET = 26.0;
-				MARKETING_VERSION = 1.0;
-				PRODUCT_BUNDLE_IDENTIFIER = "com.1791entertainment.DCD-UnusedSourceFileTests";
-				PRODUCT_NAME = "$(TARGET_NAME)";
-				STRING_CATALOG_GENERATE_SYMBOLS = NO;
-				SWIFT_APPROACHABLE_CONCURRENCY = YES;
-				SWIFT_EMIT_LOC_STRINGS = NO;
-				SWIFT_UPCOMING_FEATURE_MEMBER_IMPORT_VISIBILITY = YES;
-				SWIFT_VERSION = 5.0;
-				TARGETED_DEVICE_FAMILY = "1,2";
-				TEST_HOST = "$(BUILT_PRODUCTS_DIR)/DCD_UnusedSourceFile.app/$(BUNDLE_EXECUTABLE_FOLDER_PATH)/DCD_UnusedSourceFile";
-			};
-			name = Release;
-		};
-		96307C4B2EBA73EE005A8C80 /* Debug */ = {
-			isa = XCBuildConfiguration;
-			buildSettings = {
-				CODE_SIGN_STYLE = Automatic;
-				CURRENT_PROJECT_VERSION = 1;
-				DEVELOPMENT_TEAM = 33K3MKA36Z;
-				GENERATE_INFOPLIST_FILE = YES;
-				MARKETING_VERSION = 1.0;
-				PRODUCT_BUNDLE_IDENTIFIER = "com.1791entertainment.DCD-UnusedSourceFileUITests";
-				PRODUCT_NAME = "$(TARGET_NAME)";
-				STRING_CATALOG_GENERATE_SYMBOLS = NO;
-				SWIFT_APPROACHABLE_CONCURRENCY = YES;
-				SWIFT_EMIT_LOC_STRINGS = NO;
-				SWIFT_UPCOMING_FEATURE_MEMBER_IMPORT_VISIBILITY = YES;
-				SWIFT_VERSION = 5.0;
-				TARGETED_DEVICE_FAMILY = "1,2";
-				TEST_TARGET_NAME = DCD_UnusedSourceFile;
-			};
-			name = Debug;
-		};
-		96307C4C2EBA73EE005A8C80 /* Release */ = {
-			isa = XCBuildConfiguration;
-			buildSettings = {
-				CODE_SIGN_STYLE = Automatic;
-				CURRENT_PROJECT_VERSION = 1;
-				DEVELOPMENT_TEAM = 33K3MKA36Z;
-				GENERATE_INFOPLIST_FILE = YES;
-				MARKETING_VERSION = 1.0;
-				PRODUCT_BUNDLE_IDENTIFIER = "com.1791entertainment.DCD-UnusedSourceFileUITests";
-				PRODUCT_NAME = "$(TARGET_NAME)";
-				STRING_CATALOG_GENERATE_SYMBOLS = NO;
-				SWIFT_APPROACHABLE_CONCURRENCY = YES;
-				SWIFT_EMIT_LOC_STRINGS = NO;
-				SWIFT_UPCOMING_FEATURE_MEMBER_IMPORT_VISIBILITY = YES;
-				SWIFT_VERSION = 5.0;
-				TARGETED_DEVICE_FAMILY = "1,2";
-				TEST_TARGET_NAME = DCD_UnusedSourceFile;
-			};
-			name = Release;
-		};
 /* End XCBuildConfiguration section */
 
 /* Begin XCConfigurationList section */
@@ -559,24 +357,6 @@
 			buildConfigurations = (
 				96307C452EBA73EE005A8C80 /* Debug */,
 				96307C462EBA73EE005A8C80 /* Release */,
-			);
-			defaultConfigurationIsVisible = 0;
-			defaultConfigurationName = Release;
-		};
-		96307C472EBA73EE005A8C80 /* Build configuration list for PBXNativeTarget "DCD_UnusedSourceFileTests" */ = {
-			isa = XCConfigurationList;
-			buildConfigurations = (
-				96307C482EBA73EE005A8C80 /* Debug */,
-				96307C492EBA73EE005A8C80 /* Release */,
-			);
-			defaultConfigurationIsVisible = 0;
-			defaultConfigurationName = Release;
-		};
-		96307C4A2EBA73EE005A8C80 /* Build configuration list for PBXNativeTarget "DCD_UnusedSourceFileUITests" */ = {
-			isa = XCConfigurationList;
-			buildConfigurations = (
-				96307C4B2EBA73EE005A8C80 /* Debug */,
-				96307C4C2EBA73EE005A8C80 /* Release */,
 			);
 			defaultConfigurationIsVisible = 0;
 			defaultConfigurationName = Release;
