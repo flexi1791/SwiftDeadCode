@@ -8,11 +8,15 @@
 
 /* Begin PBXBuildFile section */
 		96307C6D2EBA75CD005A8C80 /* deadcode.xcfilelist in Resources */ = {isa = PBXBuildFile; fileRef = 96307C6B2EBA75BF005A8C80 /* deadcode.xcfilelist */; };
+		96307C912EBA8267005A8C80 /* DCD_UnusedSourceFile_Debug.linkermap in Resources */ = {isa = PBXBuildFile; fileRef = 96307C8B2EBA8267005A8C80 /* DCD_UnusedSourceFile_Debug.linkermap */; };
+		96307C932EBA8267005A8C80 /* DCD_UnusedSourceFile_Release.linkermap in Resources */ = {isa = PBXBuildFile; fileRef = 96307C8C2EBA8267005A8C80 /* DCD_UnusedSourceFile_Release.linkermap */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXFileReference section */
 		96307C232EBA73ED005A8C80 /* DCD_UnusedSourceFile.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = DCD_UnusedSourceFile.app; sourceTree = BUILT_PRODUCTS_DIR; };
 		96307C6B2EBA75BF005A8C80 /* deadcode.xcfilelist */ = {isa = PBXFileReference; lastKnownFileType = text.xcfilelist; path = deadcode.xcfilelist; sourceTree = "<group>"; };
+		96307C8B2EBA8267005A8C80 /* DCD_UnusedSourceFile_Debug.linkermap */ = {isa = PBXFileReference; lastKnownFileType = text; path = DCD_UnusedSourceFile_Debug.linkermap; sourceTree = "<group>"; };
+		96307C8C2EBA8267005A8C80 /* DCD_UnusedSourceFile_Release.linkermap */ = {isa = PBXFileReference; lastKnownFileType = text; path = DCD_UnusedSourceFile_Release.linkermap; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFileSystemSynchronizedRootGroup section */
@@ -37,6 +41,7 @@
 		96307C1A2EBA73ED005A8C80 = {
 			isa = PBXGroup;
 			children = (
+				96307C8F2EBA8267005A8C80 /* linkermap */,
 				96307C6B2EBA75BF005A8C80 /* deadcode.xcfilelist */,
 				96307C252EBA73ED005A8C80 /* DCD_UnusedSourceFile */,
 				96307C242EBA73ED005A8C80 /* Products */,
@@ -49,6 +54,15 @@
 				96307C232EBA73ED005A8C80 /* DCD_UnusedSourceFile.app */,
 			);
 			name = Products;
+			sourceTree = "<group>";
+		};
+		96307C8F2EBA8267005A8C80 /* linkermap */ = {
+			isa = PBXGroup;
+			children = (
+				96307C8B2EBA8267005A8C80 /* DCD_UnusedSourceFile_Debug.linkermap */,
+				96307C8C2EBA8267005A8C80 /* DCD_UnusedSourceFile_Release.linkermap */,
+			);
+			path = linkermap;
 			sourceTree = "<group>";
 		};
 /* End PBXGroup section */
@@ -116,6 +130,8 @@
 			isa = PBXResourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				96307C912EBA8267005A8C80 /* DCD_UnusedSourceFile_Debug.linkermap in Resources */,
+				96307C932EBA8267005A8C80 /* DCD_UnusedSourceFile_Release.linkermap in Resources */,
 				96307C6D2EBA75CD005A8C80 /* deadcode.xcfilelist in Resources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
