@@ -1,8 +1,8 @@
 import Foundation
 
 // MARK: - Filtering Constants
-
 let allowListSuffixes: Set<String> = [
+  // Function-level usage
   "F",    // Function
   "FC",   // Initializer
   "FD",   // Deinitializer
@@ -25,8 +25,17 @@ let allowListSuffixes: Set<String> = [
   "FYQ",  // Async reabstraction function
   "FCQ",  // Constructor with context
   "TF",   // Top-level function
-  "TFZ"   // Top-level static function
+  "TFZ",  // Top-level static function
+  
+  // Structural usage (safe additions)
+  "TW",   // Type witness — confirms protocol conformance is linked
+  "WL",   // Witness table — confirms protocol conformance is used
+  "Wl",   // Witness table (lowercase L) — variant
+  "MN",   // Metadata — emitted only when type is instantiated or referenced
+  "MF",   // Metadata function — used for runtime type resolution
+  "AAMA"  // Associated type metadata access — confirms protocol usage with associated types
 ]
+
 
 /// Lowercased substrings that identify non-actionable Swift symbols.
 let nonSwiftNoiseTokensLowercased: [String] = [
