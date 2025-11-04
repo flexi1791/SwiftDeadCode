@@ -1,1 +1,4 @@
-$(SRCROOT)/DCD_UnusedSourceFile
+$(SRCROOT)/DCD_UnusedSourceFile/linkermap/linkermap_Debug.txt
+$(SRCROOT)/DCD_UnusedSourceFile/linkermap/linkermap_Release.txt
+$(SRCROOT)/DCD_UnusedSourceFile/linkermap/dead_symbols_report.txt
+$(SRCROOT)/DCD_UnusedSourceFile/

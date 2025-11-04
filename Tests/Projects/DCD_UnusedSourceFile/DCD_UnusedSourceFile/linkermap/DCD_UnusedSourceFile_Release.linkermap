@@ -1,0 +1,303 @@
+# Path: /Users/work/Library/Developer/Xcode/DerivedData/DCD_UnusedSourceFile-ghqjzcfcklvvleeftzdzflztpgqf/Build/Intermediates.noindex/ArchiveIntermediates/DCD_UnusedSourceFile/InstallationBuildProductsLocation/Applications/DCD_UnusedSourceFile.app/DCD_UnusedSourceFile
+# Arch: arm64
+# Object files:
+[  0] linker synthesized
+[  1] /Users/work/Library/Developer/Xcode/DerivedData/DCD_UnusedSourceFile-ghqjzcfcklvvleeftzdzflztpgqf/Build/Intermediates.noindex/ArchiveIntermediates/DCD_UnusedSourceFile/IntermediateBuildFilesPath/DCD_UnusedSourceFile.build/Release-iphoneos/DCD_UnusedSourceFile.build/Objects-normal/arm64/ContentView.o
+[  2] /Users/work/Library/Developer/Xcode/DerivedData/DCD_UnusedSourceFile-ghqjzcfcklvvleeftzdzflztpgqf/Build/Intermediates.noindex/ArchiveIntermediates/DCD_UnusedSourceFile/IntermediateBuildFilesPath/DCD_UnusedSourceFile.build/Release-iphoneos/DCD_UnusedSourceFile.build/Objects-normal/arm64/DCD_UnusedSourceFileApp.o
+[  3] /Users/work/Library/Developer/Xcode/DerivedData/DCD_UnusedSourceFile-ghqjzcfcklvvleeftzdzflztpgqf/Build/Intermediates.noindex/ArchiveIntermediates/DCD_UnusedSourceFile/IntermediateBuildFilesPath/DCD_UnusedSourceFile.build/Release-iphoneos/DCD_UnusedSourceFile.build/Objects-normal/arm64/GeneratedAssetSymbols.o
+[  4] /Applications/Xcode.app/Contents/Developer/Platforms/iPhoneOS.platform/Developer/SDKs/iPhoneOS26.0.sdk/System/Library/Frameworks/Foundation.framework/Foundation.tbd
+[  5] /Applications/Xcode.app/Contents/Developer/Platforms/iPhoneOS.platform/Developer/SDKs/iPhoneOS26.0.sdk/usr/lib/libobjc.tbd
+[  6] /Applications/Xcode.app/Contents/Developer/Platforms/iPhoneOS.platform/Developer/SDKs/iPhoneOS26.0.sdk/usr/lib/libSystem.tbd
+[  7] /usr/lib/system/libcompiler_rt.dylib
+[  8] /Applications/Xcode.app/Contents/Developer/Platforms/iPhoneOS.platform/Developer/SDKs/iPhoneOS26.0.sdk/System/Library/Frameworks/SwiftUI.framework/SwiftUI.tbd
+[  9] /Applications/Xcode.app/Contents/Developer/Platforms/iPhoneOS.platform/Developer/SDKs/iPhoneOS26.0.sdk/usr/lib/swift/libswiftCore.tbd
+[ 10] /Applications/Xcode.app/Contents/Developer/Platforms/iPhoneOS.platform/Developer/SDKs/iPhoneOS26.0.sdk/usr/lib/swift/libswiftCoreFoundation.tbd
+[ 11] /Applications/Xcode.app/Contents/Developer/Platforms/iPhoneOS.platform/Developer/SDKs/iPhoneOS26.0.sdk/usr/lib/swift/libswiftCoreImage.tbd
+[ 12] /Applications/Xcode.app/Contents/Developer/Platforms/iPhoneOS.platform/Developer/SDKs/iPhoneOS26.0.sdk/usr/lib/swift/libswiftDispatch.tbd
+[ 13] /Applications/Xcode.app/Contents/Developer/Platforms/iPhoneOS.platform/Developer/SDKs/iPhoneOS26.0.sdk/usr/lib/swift/libswiftMetal.tbd
+[ 14] /Applications/Xcode.app/Contents/Developer/Platforms/iPhoneOS.platform/Developer/SDKs/iPhoneOS26.0.sdk/usr/lib/swift/libswiftOSLog.tbd
+[ 15] /Applications/Xcode.app/Contents/Developer/Platforms/iPhoneOS.platform/Developer/SDKs/iPhoneOS26.0.sdk/usr/lib/swift/libswiftObjectiveC.tbd
+[ 16] /Applications/Xcode.app/Contents/Developer/Platforms/iPhoneOS.platform/Developer/SDKs/iPhoneOS26.0.sdk/usr/lib/swift/libswiftQuartzCore.tbd
+[ 17] /Applications/Xcode.app/Contents/Developer/Platforms/iPhoneOS.platform/Developer/SDKs/iPhoneOS26.0.sdk/usr/lib/swift/libswiftSpatial.tbd
+[ 18] /Applications/Xcode.app/Contents/Developer/Platforms/iPhoneOS.platform/Developer/SDKs/iPhoneOS26.0.sdk/usr/lib/swift/libswiftUniformTypeIdentifiers.tbd
+[ 19] /Applications/Xcode.app/Contents/Developer/Platforms/iPhoneOS.platform/Developer/SDKs/iPhoneOS26.0.sdk/usr/lib/swift/libswiftXPC.tbd
+[ 20] /Applications/Xcode.app/Contents/Developer/Platforms/iPhoneOS.platform/Developer/SDKs/iPhoneOS26.0.sdk/usr/lib/swift/libswift_Builtin_float.tbd
+[ 21] /Applications/Xcode.app/Contents/Developer/Platforms/iPhoneOS.platform/Developer/SDKs/iPhoneOS26.0.sdk/usr/lib/swift/libswift_Concurrency.tbd
+[ 22] /Applications/Xcode.app/Contents/Developer/Platforms/iPhoneOS.platform/Developer/SDKs/iPhoneOS26.0.sdk/usr/lib/swift/libswiftos.tbd
+[ 23] /Applications/Xcode.app/Contents/Developer/Platforms/iPhoneOS.platform/Developer/SDKs/iPhoneOS26.0.sdk/usr/lib/swift/libswiftsimd.tbd
+[ 24] /Applications/Xcode.app/Contents/Developer/Platforms/iPhoneOS.platform/Developer/SDKs/iPhoneOS26.0.sdk/System/Library/Frameworks/SwiftUICore.framework/SwiftUICore.tbd
+[ 25] /System/Library/PrivateFrameworks/UIKitCore.framework/UIKitCore
+# Sections:
+# Address	Size    	Segment	Section
+0x100004000	0x00000854	__TEXT	__text
+0x100004854	0x00000180	__TEXT	__stubs
+0x1000049E0	0x00000124	__TEXT	__const
+0x100004B04	0x000000D8	__TEXT	__constg_swiftt
+0x100004BDC	0x000001BC	__TEXT	__swift5_typeref
+0x100004D98	0x00000030	__TEXT	__swift5_fieldmd
+0x100004DC8	0x0000000A	__TEXT	__swift5_reflstr
+0x100004DD4	0x00000030	__TEXT	__swift5_assocty
+0x100004E04	0x00000008	__TEXT	__swift5_proto
+0x100004E0C	0x0000000C	__TEXT	__swift5_types
+0x100004E18	0x00000008	__TEXT	__swift5_entry
+0x100004E20	0x00000091	__TEXT	__cstring
+0x100004EB4	0x000000B8	__TEXT	__unwind_info
+0x100008000	0x000001B0	__DATA_CONST	__got
+0x1000081B0	0x00000128	__DATA_CONST	__const
+0x1000082D8	0x00000008	__DATA_CONST	__objc_classlist
+0x1000082E0	0x00000008	__DATA_CONST	__objc_imageinfo
+0x10000C000	0x00000090	__DATA	__objc_const
+0x10000C090	0x00000100	__DATA	__data
+0x10000C190	0x00000110	__DATA	__bss
+# Symbols:
+# Address	Size    	File  Name
+0x100000000	0x00000000	[  0] __mh_execute_header
+0x100004000	0x00000010	[  1] _$s20DCD_UnusedSourceFile11ContentViewVMa
+0x100004010	0x00000010	[  1] _$s20DCD_UnusedSourceFile11ContentViewV7SwiftUI0F0AA4BodyAdEP_AGWT
+0x100004020	0x000001F8	[  1] _$s20DCD_UnusedSourceFile11ContentViewV4bodyQrvg7SwiftUI05TupleF0VyAE0F0PAEE15foregroundStyleyQrqd__AE05ShapeL0Rd__lFQOyAiEE10imageScaleyQrAE5ImageV0O0OFQOyAN_Qo__AE04TintmL0VQo__AE4TextVtGyXEfU_
+0x100004218	0x00000004	[  1] _$s20DCD_UnusedSourceFile11ContentViewV7SwiftUI0F0AadEP05_makeF04view6inputsAD01_F7OutputsVAD11_GraphValueVyxG_AD01_F6InputsVtFZTW
+0x10000421C	0x00000004	[  1] _$s20DCD_UnusedSourceFile11ContentViewV7SwiftUI0F0AadEP05_makeF4List4view6inputsAD01_fJ7OutputsVAD11_GraphValueVyxG_AD01_fJ6InputsVtFZTW
+0x100004220	0x00000018	[  1] _$s20DCD_UnusedSourceFile11ContentViewV7SwiftUI0F0AadEP14_viewListCount6inputsSiSgAD01_fjK6InputsV_tFZTW
+0x100004238	0x0000007C	[  1] _$s20DCD_UnusedSourceFile11ContentViewV7SwiftUI0F0AadEP4body4BodyQzvgTW
+0x1000042B4	0x00000044	[  1] ___swift_instantiateConcreteTypeFromMangledName
+0x1000042F8	0x00000020	[  1] _$s7SwiftUI17EnvironmentValuesV10imageScaleAA5ImageV0F0OvpACTKq
+0x100004318	0x0000007C	[  1] _$s7SwiftUI17EnvironmentValuesV10imageScaleAA5ImageV0F0OvpACTkq
+0x100004394	0x00000048	[  1] _$s7SwiftUI15ModifiedContentVyACyAA5ImageVAA30_EnvironmentKeyWritingModifierVyAE5ScaleOGGAA016_ForegroundStyleI0VyAA09TintShapeL0VGGWOc
+0x1000043DC	0x00000010	[  1] _$s7SwiftUI4TextV7StorageOWOy
+0x1000043EC	0x00000040	[  1] _$s7SwiftUI15ModifiedContentVyACyAA5ImageVAA30_EnvironmentKeyWritingModifierVyAE5ScaleOGGAA016_ForegroundStyleI0VyAA09TintShapeL0VGGWOh
+0x10000442C	0x00000010	[  1] _$s7SwiftUI4TextV7StorageOWOe
+0x10000443C	0x00000004	[  1] l_get_witness_table 7SwiftUI15ModifiedContentVyAA6VStackVyAA9TupleViewVyACyACyAA5ImageVAA30_EnvironmentKeyWritingModifierVyAI5ScaleOGGAA016_ForegroundStyleL0VyAA09TintShapeO0VGG_AA4TextVtGGAA14_PaddingLayoutVGAA0G0HPAyAA1_HPyHC_A_AA0gL0HPyHCHC
+0x100004440	0x00000070	[  1] _$s7SwiftUI15ModifiedContentVyAA6VStackVyAA9TupleViewVyACyACyAA5ImageVAA30_EnvironmentKeyWritingModifierVyAI5ScaleOGGAA016_ForegroundStyleL0VyAA09TintShapeO0VGG_AA4TextVtGGAA14_PaddingLayoutVGACyxq_GAA0G0A2AA2_RzAA0gL0R_rlWl
+0x1000044B0	0x00000048	[  1] ___swift_instantiateConcreteTypeFromMangledNameAbstract
+0x1000044F8	0x00000048	[  1] _$s7SwiftUI6VStackVyAA9TupleViewVyAA15ModifiedContentVyAGyAA5ImageVAA30_EnvironmentKeyWritingModifierVyAI5ScaleOGGAA016_ForegroundStyleL0VyAA09TintShapeO0VGG_AA4TextVtGGACyxGAA0E0AAWl
+0x100004540	0x00000004	[  2] _$s20DCD_UnusedSourceFile0a1_bcD3AppV4bodyQrvgAA11ContentViewVycfU_
+0x100004540	0x00000000	[  0] _$s20DCD_UnusedSourceFile0a1_bcD3AppV7SwiftUI0E0AadEPxycfCTW
+0x100004544	0x000000CC	[  2] _$s20DCD_UnusedSourceFile0a1_bcD3AppV7SwiftUI0E0AadEP4body4BodyQzvgTW
+0x100004610	0x00000034	[  2] _main
+0x100004644	0x00000040	[  2] _$s20DCD_UnusedSourceFile0a1_bcD3AppVAC7SwiftUI0E0AAWl
+0x100004684	0x00000010	[  2] _$s20DCD_UnusedSourceFile0a1_bcD3AppVMa
+0x100004694	0x00000010	[  2] _$s20DCD_UnusedSourceFile0a1_bcD3AppV7SwiftUI0E0AA4BodyAdEP_AD5ScenePWT
+0x1000046A4	0x00000040	[  2] _$s20DCD_UnusedSourceFile11ContentViewVAC7SwiftUI0F0AAWl
+0x1000046E4	0x00000048	[  2] _$s7SwiftUI11WindowGroupVy20DCD_UnusedSourceFile11ContentViewVGACyxGAA5SceneAAWl
+0x10000472C	0x00000004	[  2] l_get_witness_table 7SwiftUI11WindowGroupVy20DCD_UnusedSourceFile11ContentViewVGAA5SceneHPyHC
+0x100004730	0x00000090	[  3] _$s20DCD_UnusedSourceFile19ResourceBundleClass33_395893EBA9ADFA893585EA88A9165061LLCfZ
+0x1000047C0	0x00000074	[  3] _$s20DCD_UnusedSourceFile19ResourceBundleClass33_395893EBA9ADFA893585EA88A9165061LLCfD
+0x100004834	0x00000020	[  3] _$s20DCD_UnusedSourceFile19ResourceBundleClass33_395893EBA9ADFA893585EA88A9165061LLCMa
+0x100004854	0x0000000C	[  8] _$s7SwiftUI11WindowGroupV2id5title11lazyContentACyxGSSSg_AA4TextVSgxyctcfC.stub
+0x100004860	0x0000000C	[  8] _$s7SwiftUI12SceneBuilderV10buildBlockyxxAA0C0RzlFZ.stub
+0x10000486C	0x0000000C	[ 24] _$s7SwiftUI14TintShapeStyleVACycfC.stub
+0x100004878	0x0000000C	[ 24] _$s7SwiftUI17EnvironmentValuesV10imageScaleAA5ImageV0F0Ovg.stub
+0x100004884	0x0000000C	[ 24] _$s7SwiftUI17EnvironmentValuesV10imageScaleAA5ImageV0F0Ovs.stub
+0x100004890	0x0000000C	[ 24] _$s7SwiftUI18LocalizedStringKeyV13stringLiteralACSS_tcfC.stub
+0x10000489C	0x0000000C	[ 24] _$s7SwiftUI19HorizontalAlignmentV6centerACvgZ.stub
+0x1000048A8	0x0000000C	[  8] _$s7SwiftUI3AppPAAE4mainyyFZ.stub
+0x1000048B4	0x0000000C	[ 24] _$s7SwiftUI4EdgeO3SetV3allAEvgZ.stub
+0x1000048C0	0x0000000C	[ 24] _$s7SwiftUI4TextV_9tableName6bundle7commentAcA18LocalizedStringKeyV_SSSgSo8NSBundleCSgs06StaticI0VSgtcfC.stub
+0x1000048CC	0x0000000C	[ 24] _$s7SwiftUI4ViewPAAE05_makeC04view6inputsAA01_C7OutputsVAA11_GraphValueVyxG_AA01_C6InputsVtFZ.stub
+0x1000048D8	0x0000000C	[ 24] _$s7SwiftUI4ViewPAAE05_makeC4List4view6inputsAA01_cE7OutputsVAA11_GraphValueVyxG_AA01_cE6InputsVtFZ.stub
+0x1000048E4	0x0000000C	[ 24] _$s7SwiftUI4ViewPAAE14_viewListCount6inputsSiSgAA01_ceF6InputsV_tFZ.stub
+0x1000048F0	0x0000000C	[ 24] _$s7SwiftUI5ImageV10systemNameACSS_tcfC.stub
+0x1000048FC	0x0000000C	[ 24] _$s7SwiftUI5ImageV5ScaleOMa.stub
+0x100004908	0x0000000C	[ 21] _$sScA15unownedExecutorScevgTj.stub
+0x100004914	0x0000000C	[ 21] _$sScM6sharedScMvgZ.stub
+0x100004920	0x0000000C	[ 21] _$sScMMa.stub
+0x10000492C	0x0000000C	[  5] _objc_opt_self.stub
+0x100004938	0x0000000C	[  9] _swift_bridgeObjectRelease.stub
+0x100004944	0x0000000C	[  9] _swift_bridgeObjectRetain.stub
+0x100004950	0x0000000C	[  9] _swift_deallocClassInstance.stub
+0x10000495C	0x0000000C	[  9] _swift_getKeyPath.stub
+0x100004968	0x0000000C	[  9] _swift_getOpaqueTypeConformance2.stub
+0x100004974	0x0000000C	[  9] _swift_getTypeByMangledNameInContext2.stub
+0x100004980	0x0000000C	[  9] _swift_getTypeByMangledNameInContextInMetadataState2.stub
+0x10000498C	0x0000000C	[  9] _swift_getWitnessTable.stub
+0x100004998	0x0000000C	[  9] _swift_release.stub
+0x1000049A4	0x0000000C	[  9] _swift_retain.stub
+0x1000049B0	0x0000000C	[ 21] _swift_task_deinitOnExecutor.stub
+0x1000049BC	0x0000000C	[ 21] _swift_task_isCurrentExecutor.stub
+0x1000049C8	0x0000000C	[ 21] _swift_task_reportUnexpectedExecutor.stub
+0x1000049E0	0x00000015	[  1] l_.str.20.DCD_UnusedSourceFile
+0x1000049F5	0x0000000F	[  1] l_.str.11.ContentView
+0x100004A04	0x00000054	[  1] _$s20DCD_UnusedSourceFile11ContentViewV7SwiftUI0F0AAMc
+0x100004A58	0x00000030	[  1] l_keypath
+0x100004A88	0x00000002	[  1] ___swift_reflection_version
+0x100004A90	0x00000018	[  2] l_.str.23.DCD_UnusedSourceFileApp
+0x100004AA8	0x00000040	[  2] _$s20DCD_UnusedSourceFile0a1_bcD3AppV7SwiftUI0E0AAMc
+0x100004AF0	0x00000014	[  3] l_.str.19.ResourceBundleClass
+0x100004B04	0x0000000C	[  1] _$s20DCD_UnusedSourceFileMXM
+0x100004B10	0x0000001C	[  1] _$s20DCD_UnusedSourceFile11ContentViewVMn
+0x100004B2C	0x00000028	[  1] _$s20DCD_UnusedSourceFile11ContentViewV4bodyQrvpQOMQ
+0x100004B54	0x0000001C	[  2] _$s20DCD_UnusedSourceFile0a1_bcD3AppVMn
+0x100004B70	0x00000028	[  2] _$s20DCD_UnusedSourceFile0a1_bcD3AppV4bodyQrvpQOMQ
+0x100004B98	0x00000008	[  3] _$s20DCD_UnusedSourceFile19ResourceBundleClass33_395893EBA9ADFA893585EA88A9165061LLCMXX
+0x100004BA0	0x0000003C	[  3] _$s20DCD_UnusedSourceFile19ResourceBundleClass33_395893EBA9ADFA893585EA88A9165061LLCMn
+0x100004BDC	0x00000006	[  1] _symbolic _____ 20DCD_UnusedSourceFile11ContentViewV
+0x100004BE2	0x00000008	[  1] _associated conformance 20DCD_UnusedSourceFile11ContentViewV7SwiftUI0F0AA4BodyAdEP_AdE
+0x100004BEA	0x00000048	[  1] _symbolic _____y_____y_____yAAyAAy__________y_____GG_____y_____GG______tGG_____G 7SwiftUI15ModifiedContentV AA6VStackV AA9TupleViewV AA5ImageV AA30_EnvironmentKeyWritingModifierV AI5ScaleO AA016_ForegroundStyleL0V AA09TintShapeO0V AA4TextV AA14_PaddingLayoutV
+0x100004C32	0x00000012	[  1] _symbolic $s7SwiftUI4ViewP
+0x100004C44	0x00000044	[  1] _symbolic _____y___________y_____yADy__________y_____GG_____y_____GG______tGG 7SwiftUI13_VariadicViewO4TreeV AA13_VStackLayoutV AA05TupleD0V AA15ModifiedContentV AA5ImageV AA30_EnvironmentKeyWritingModifierV AM5ScaleO AA016_ForegroundStyleO0V AA09TintShapeR0V AA4TextV
+0x100004C88	0x0000002A	[  1] _symbolic _____yAAy__________y_____GG_____y_____GG 7SwiftUI15ModifiedContentV AA5ImageV AA30_EnvironmentKeyWritingModifierV AE5ScaleO AA016_ForegroundStyleI0V AA09TintShapeL0V
+0x100004CB2	0x0000001A	[  1] _symbolic _____y__________y_____GG 7SwiftUI15ModifiedContentV AA5ImageV AA30_EnvironmentKeyWritingModifierV AE5ScaleO
+0x100004CCC	0x0000000E	[  1] _symbolic _____y_____G 7SwiftUI30_EnvironmentKeyWritingModifierV AA5ImageV5ScaleO
+0x100004CDA	0x00000006	[  1] _symbolic _____ 7SwiftUI17EnvironmentValuesV
+0x100004CE0	0x00000006	[  1] _symbolic _____ 7SwiftUI5ImageV5ScaleO
+0x100004CE6	0x00000030	[  1] _symbolic _____yAAy__________y_____GG_____y_____GG______t 7SwiftUI15ModifiedContentV AA5ImageV AA30_EnvironmentKeyWritingModifierV AE5ScaleO AA016_ForegroundStyleI0V AA09TintShapeL0V AA4TextV
+0x100004D16	0x00000002	[  1] _symbolic x
+0x100004D18	0x0000003E	[  1] _symbolic _____y_____y_____yACy__________y_____GG_____y_____GG______tGG 7SwiftUI6VStackV AA9TupleViewV AA15ModifiedContentV AA5ImageV AA30_EnvironmentKeyWritingModifierV AI5ScaleO AA016_ForegroundStyleL0V AA09TintShapeO0V AA4TextV
+0x100004D56	0x00000007	[  1] _get_witness_table 7SwiftUI15ModifiedContentVyAA6VStackVyAA9TupleViewVyACyACyAA5ImageVAA30_EnvironmentKeyWritingModifierVyAI5ScaleOGGAA016_ForegroundStyleL0VyAA09TintShapeO0VGG_AA4TextVtGGAA14_PaddingLayoutVGAA0G0HPAyAA1_HPyHC_A_AA0gL0HPyHCHC.1
+0x100004D5E	0x00000006	[  2] _symbolic _____ 20DCD_UnusedSourceFile0a1_bcD3AppV
+0x100004D64	0x00000008	[  2] _associated conformance 20DCD_UnusedSourceFile0a1_bcD3AppV7SwiftUI0E0AA4BodyAdEP_AD5Scene
+0x100004D6C	0x0000000E	[  2] _symbolic _____y_____G 7SwiftUI11WindowGroupV 20DCD_UnusedSourceFile11ContentViewV
+0x100004D7A	0x00000010	[  2] _symbolic $s7SwiftUI3AppP
+0x100004D8A	0x00000007	[  2] _get_witness_table 7SwiftUI11WindowGroupVy20DCD_UnusedSourceFile11ContentViewVGAA5SceneHPyHC.1
+0x100004D92	0x00000006	[  3] _symbolic _____ 20DCD_UnusedSourceFile19ResourceBundleClass33_395893EBA9ADFA893585EA88A9165061LLC
+0x100004D98	0x00000010	[  1] _$s20DCD_UnusedSourceFile11ContentViewVMF
+0x100004DA8	0x00000010	[  2] _$s20DCD_UnusedSourceFile0a1_bcD3AppVMF
+0x100004DB8	0x00000010	[  3] _$s20DCD_UnusedSourceFile19ResourceBundleClass33_395893EBA9ADFA893585EA88A9165061LLCMF
+0x100004DC8	0x00000005	[  1] l___unnamed_1
+0x100004DCD	0x00000005	[  2] l___unnamed_1
+0x100004DD4	0x00000018	[  1] _$s20DCD_UnusedSourceFile11ContentViewV7SwiftUI0F0AAMA
+0x100004DEC	0x00000018	[  2] _$s20DCD_UnusedSourceFile0a1_bcD3AppV7SwiftUI0E0AAMA
+0x100004E04	0x00000004	[  1] l_$s20DCD_UnusedSourceFile11ContentViewV7SwiftUI0F0AAHc
+0x100004E08	0x00000004	[  2] l_$s20DCD_UnusedSourceFile0a1_bcD3AppV7SwiftUI0E0AAHc
+0x100004E0C	0x00000004	[  1] l_$s20DCD_UnusedSourceFile11ContentViewVHn
+0x100004E10	0x00000004	[  2] l_$s20DCD_UnusedSourceFile0a1_bcD3AppVHn
+0x100004E14	0x00000004	[  3] l_$s20DCD_UnusedSourceFile19ResourceBundleClass33_395893EBA9ADFA893585EA88A9165061LLCHn
+0x100004E18	0x00000008	[  2] l_entry_point
+0x100004E20	0x00000054	[  3] literal string: _TtC20DCD_UnusedSourceFileP33_395893EBA9ADFA893585EA88A916506119ResourceBundleClass
+0x100004E80	0x00000031	[  3] literal string: DCD_UnusedSourceFile/GeneratedAssetSymbols.swift
+0x100004EB4	0x000000B8	[  0] compact unwind info
+0x100008000	0x00000008	[  1] _$s20DCD_UnusedSourceFile11ContentViewVMn.got
+0x100008008	0x00000008	[  5] _objc_opt_self.got
+0x100008010	0x00000008	[  7] ___chkstk_darwin.got
+0x100008018	0x00000008	[  8] _$s7SwiftUI11WindowGroupV2id5title11lazyContentACyxGSSSg_AA4TextVSgxyctcfC.got
+0x100008020	0x00000008	[  8] _$s7SwiftUI11WindowGroupVMn.got
+0x100008028	0x00000008	[  8] _$s7SwiftUI11WindowGroupVyxGAA5SceneAAMc.got
+0x100008030	0x00000008	[  8] _$s7SwiftUI12SceneBuilderV10buildBlockyxxAA0C0RzlFZ.got
+0x100008038	0x00000008	[ 24] _$s7SwiftUI13_VStackLayoutVMn.got
+0x100008040	0x00000008	[ 24] _$s7SwiftUI13_VariadicViewO4TreeVMn.got
+0x100008048	0x00000008	[ 24] _$s7SwiftUI14TintShapeStyleVACycfC.got
+0x100008050	0x00000008	[ 24] _$s7SwiftUI14TintShapeStyleVMn.got
+0x100008058	0x00000008	[ 24] _$s7SwiftUI14_PaddingLayoutVAA12ViewModifierAAWP.got
+0x100008060	0x00000008	[ 24] _$s7SwiftUI14_PaddingLayoutVMn.got
+0x100008068	0x00000008	[ 24] _$s7SwiftUI15ModifiedContentVMn.got
+0x100008070	0x00000008	[ 24] _$s7SwiftUI15ModifiedContentVyxq_GAA4ViewA2aERzAA0E8ModifierR_rlMc.got
+0x100008078	0x00000008	[ 24] _$s7SwiftUI17EnvironmentValuesV10imageScaleAA5ImageV0F0Ovg.got
+0x100008080	0x00000008	[ 24] _$s7SwiftUI17EnvironmentValuesV10imageScaleAA5ImageV0F0Ovs.got
+0x100008088	0x00000008	[ 24] _$s7SwiftUI17EnvironmentValuesVMn.got
+0x100008090	0x00000008	[ 24] _$s7SwiftUI18LocalizedStringKeyV13stringLiteralACSS_tcfC.got
+0x100008098	0x00000008	[ 24] _$s7SwiftUI19HorizontalAlignmentV6centerACvgZ.got
+0x1000080A0	0x00000008	[ 24] _$s7SwiftUI24_ForegroundStyleModifierVMn.got
+0x1000080A8	0x00000008	[ 24] _$s7SwiftUI30_EnvironmentKeyWritingModifierVMn.got
+0x1000080B0	0x00000008	[  8] _$s7SwiftUI3AppPAAE4mainyyFZ.got
+0x1000080B8	0x00000008	[ 24] _$s7SwiftUI4EdgeO3SetV3allAEvgZ.got
+0x1000080C0	0x00000008	[ 24] _$s7SwiftUI4TextVMn.got
+0x1000080C8	0x00000008	[ 24] _$s7SwiftUI4TextV_9tableName6bundle7commentAcA18LocalizedStringKeyV_SSSgSo8NSBundleCSgs06StaticI0VSgtcfC.got
+0x1000080D0	0x00000008	[ 24] _$s7SwiftUI4ViewPAAE05_makeC04view6inputsAA01_C7OutputsVAA11_GraphValueVyxG_AA01_C6InputsVtFZ.got
+0x1000080D8	0x00000008	[ 24] _$s7SwiftUI4ViewPAAE05_makeC4List4view6inputsAA01_cE7OutputsVAA11_GraphValueVyxG_AA01_cE6InputsVtFZ.got
+0x1000080E0	0x00000008	[ 24] _$s7SwiftUI4ViewPAAE14_viewListCount6inputsSiSgAA01_ceF6InputsV_tFZ.got
+0x1000080E8	0x00000008	[ 24] _$s7SwiftUI5ImageV10systemNameACSS_tcfC.got
+0x1000080F0	0x00000008	[ 24] _$s7SwiftUI5ImageV5ScaleO5largeyA2EmFWC.got
+0x1000080F8	0x00000008	[ 24] _$s7SwiftUI5ImageV5ScaleOMa.got
+0x100008100	0x00000008	[ 24] _$s7SwiftUI5ImageV5ScaleOMn.got
+0x100008108	0x00000008	[ 24] _$s7SwiftUI5ImageVMn.got
+0x100008110	0x00000008	[ 24] _$s7SwiftUI6VStackVMn.got
+0x100008118	0x00000008	[ 24] _$s7SwiftUI6VStackVyxGAA4ViewAAMc.got
+0x100008120	0x00000008	[ 24] _$s7SwiftUI9TupleViewVMn.got
+0x100008128	0x00000008	[  9] _swift_bridgeObjectRelease.got
+0x100008130	0x00000008	[  9] _swift_bridgeObjectRetain.got
+0x100008138	0x00000008	[  9] _swift_deallocClassInstance.got
+0x100008140	0x00000008	[  9] _swift_getKeyPath.got
+0x100008148	0x00000008	[  9] _swift_getOpaqueTypeConformance2.got
+0x100008150	0x00000008	[  9] _swift_getTypeByMangledNameInContext2.got
+0x100008158	0x00000008	[  9] _swift_getTypeByMangledNameInContextInMetadataState2.got
+0x100008160	0x00000008	[  9] _swift_getWitnessTable.got
+0x100008168	0x00000008	[  9] _swift_release.got
+0x100008170	0x00000008	[  9] _swift_retain.got
+0x100008178	0x00000008	[ 21] _$sScA15unownedExecutorScevgTj.got
+0x100008180	0x00000008	[ 21] _$sScM6sharedScMvgZ.got
+0x100008188	0x00000008	[ 21] _$sScMMa.got
+0x100008190	0x00000008	[ 21] _$sScMScAsWP.got
+0x100008198	0x00000008	[ 21] _swift_task_deinitOnExecutor.got
+0x1000081A0	0x00000008	[ 21] _swift_task_isCurrentExecutor.got
+0x1000081A8	0x00000008	[ 21] _swift_task_reportUnexpectedExecutor.got
+0x1000081B0	0x00000008	[  1] __swift_FORCE_LOAD_$_swiftFoundation_$_DCD_UnusedSourceFile
+0x1000081B8	0x00000008	[  1] __swift_FORCE_LOAD_$_swift_Builtin_float_$_DCD_UnusedSourceFile
+0x1000081C0	0x00000008	[  1] __swift_FORCE_LOAD_$_swiftObjectiveC_$_DCD_UnusedSourceFile
+0x1000081C8	0x00000008	[  1] __swift_FORCE_LOAD_$_swiftCoreFoundation_$_DCD_UnusedSourceFile
+0x1000081D0	0x00000008	[  1] __swift_FORCE_LOAD_$_swiftDispatch_$_DCD_UnusedSourceFile
+0x1000081D8	0x00000008	[  1] __swift_FORCE_LOAD_$_swiftXPC_$_DCD_UnusedSourceFile
+0x1000081E0	0x00000008	[  1] __swift_FORCE_LOAD_$_swiftos_$_DCD_UnusedSourceFile
+0x1000081E8	0x00000008	[  1] __swift_FORCE_LOAD_$_swiftUniformTypeIdentifiers_$_DCD_UnusedSourceFile
+0x1000081F0	0x00000008	[  1] __swift_FORCE_LOAD_$_swiftUIKit_$_DCD_UnusedSourceFile
+0x1000081F8	0x00000008	[  1] __swift_FORCE_LOAD_$_swiftQuartzCore_$_DCD_UnusedSourceFile
+0x100008200	0x00000008	[  1] __swift_FORCE_LOAD_$_swiftMetal_$_DCD_UnusedSourceFile
+0x100008208	0x00000008	[  1] __swift_FORCE_LOAD_$_swiftCoreImage_$_DCD_UnusedSourceFile
+0x100008210	0x00000008	[  1] __swift_FORCE_LOAD_$_swiftOSLog_$_DCD_UnusedSourceFile
+0x100008218	0x00000008	[  1] __swift_FORCE_LOAD_$_swiftSpatial_$_DCD_UnusedSourceFile
+0x100008220	0x00000008	[  1] __swift_FORCE_LOAD_$_swiftsimd_$_DCD_UnusedSourceFile
+0x100008228	0x00000020	[  1] _$s20DCD_UnusedSourceFile11ContentViewVMf
+0x100008238	0x00000000	[  1] _$s20DCD_UnusedSourceFile11ContentViewVN
+0x100008248	0x00000008	[  1] l_got.$s7SwiftUI4ViewMp
+0x100008250	0x00000008	[  1] l_got.$s7SwiftUI4ViewP4BodyAC_AaBTn
+0x100008258	0x00000008	[  1] l_got.$s4Body7SwiftUI4ViewPTl
+0x100008260	0x00000008	[  1] l_got.$s7SwiftUI4ViewP05_makeC04view6inputsAA01_C7OutputsVAA11_GraphValueVyxG_AA01_C6InputsVtFZTq
+0x100008268	0x00000008	[  1] l_got.$s7SwiftUI4ViewP05_makeC4List4view6inputsAA01_cE7OutputsVAA11_GraphValueVyxG_AA01_cE6InputsVtFZTq
+0x100008270	0x00000008	[  1] l_got.$s7SwiftUI4ViewP14_viewListCount6inputsSiSgAA01_ceF6InputsV_tFZTq
+0x100008278	0x00000008	[  1] l_got.$s7SwiftUI4ViewP4body4BodyQzvgTq
+0x100008280	0x00000008	[  1] l_got.$s7SwiftUI17EnvironmentValuesV10imageScaleAA5ImageV0F0OvpMV
+0x100008288	0x00000020	[  2] _$s20DCD_UnusedSourceFile0a1_bcD3AppVMf
+0x100008298	0x00000000	[  2] _$s20DCD_UnusedSourceFile0a1_bcD3AppVN
+0x1000082A8	0x00000008	[  2] l_got.$s7SwiftUI3AppMp
+0x1000082B0	0x00000008	[  2] l_got.$s7SwiftUI3AppP4BodyAC_AA5SceneTn
+0x1000082B8	0x00000008	[  2] l_got.$s4Body7SwiftUI3AppPTl
+0x1000082C0	0x00000008	[  2] l_got.$s7SwiftUI3AppP4body4BodyQzvgTq
+0x1000082C8	0x00000008	[  2] l_got.$s7SwiftUI3AppPxycfCTq
+0x1000082D0	0x00000008	[  2] l_got.$s7SwiftUI5SceneMp
+0x1000082D8	0x00000008	[  3] anon
+0x1000082E0	0x00000008	[  0] anon
+0x10000C000	0x00000048	[  3] __METACLASS_DATA__TtC20DCD_UnusedSourceFileP33_395893EBA9ADFA893585EA88A916506119ResourceBundleClass
+0x10000C048	0x00000048	[  3] __DATA__TtC20DCD_UnusedSourceFileP33_395893EBA9ADFA893585EA88A916506119ResourceBundleClass
+0x10000C090	0x00000008	[  1] _$s7SwiftUI13_VariadicViewO4TreeVy_AA13_VStackLayoutVAA05TupleD0VyAA15ModifiedContentVyAKyAA5ImageVAA30_EnvironmentKeyWritingModifierVyAM5ScaleOGGAA016_ForegroundStyleO0VyAA09TintShapeR0VGG_AA4TextVtGGMD
+0x10000C098	0x00000008	[  1] _$s7SwiftUI15ModifiedContentVyAA6VStackVyAA9TupleViewVyACyACyAA5ImageVAA30_EnvironmentKeyWritingModifierVyAI5ScaleOGGAA016_ForegroundStyleL0VyAA09TintShapeO0VGG_AA4TextVtGGAA14_PaddingLayoutVGMD
+0x10000C0A0	0x00000008	[  1] _$s7SwiftUI15ModifiedContentVyACyAA5ImageVAA30_EnvironmentKeyWritingModifierVyAE5ScaleOGGAA016_ForegroundStyleI0VyAA09TintShapeL0VGGMD
+0x10000C0A8	0x00000008	[  1] _$s7SwiftUI15ModifiedContentVyAA5ImageVAA30_EnvironmentKeyWritingModifierVyAE5ScaleOGGMD
+0x10000C0B0	0x00000008	[  1] _$s7SwiftUI30_EnvironmentKeyWritingModifierVyAA5ImageV5ScaleOGMD
+0x10000C0B8	0x00000008	[  1] _$s7SwiftUI15ModifiedContentVyACyAA5ImageVAA30_EnvironmentKeyWritingModifierVyAE5ScaleOGGAA016_ForegroundStyleI0VyAA09TintShapeL0VGG_AA4TextVtMD
+0x10000C0C0	0x00000008	[  1] _$s7SwiftUI15ModifiedContentVyAA6VStackVyAA9TupleViewVyACyACyAA5ImageVAA30_EnvironmentKeyWritingModifierVyAI5ScaleOGGAA016_ForegroundStyleL0VyAA09TintShapeO0VGG_AA4TextVtGGAA14_PaddingLayoutVGACyxq_GAA0G0A2AA2_RzAA0gL0R_rlWL
+0x10000C0C8	0x00000008	[  1] _$s7SwiftUI6VStackVyAA9TupleViewVyAA15ModifiedContentVyAGyAA5ImageVAA30_EnvironmentKeyWritingModifierVyAI5ScaleOGGAA016_ForegroundStyleL0VyAA09TintShapeO0VGG_AA4TextVtGGACyxGAA0E0AAWL
+0x10000C0D0	0x00000008	[  1] _$s7SwiftUI6VStackVyAA9TupleViewVyAA15ModifiedContentVyAGyAA5ImageVAA30_EnvironmentKeyWritingModifierVyAI5ScaleOGGAA016_ForegroundStyleL0VyAA09TintShapeO0VGG_AA4TextVtGGMD
+0x10000C0D8	0x00000008	[  2] _$s20DCD_UnusedSourceFile0a1_bcD3AppVAC7SwiftUI0E0AAWL
+0x10000C0E0	0x00000008	[  2] _$s7SwiftUI11WindowGroupVy20DCD_UnusedSourceFile11ContentViewVGMD
+0x10000C0E8	0x00000008	[  2] _$s20DCD_UnusedSourceFile11ContentViewVAC7SwiftUI0F0AAWL
+0x10000C0F0	0x00000008	[  2] _$s7SwiftUI11WindowGroupVy20DCD_UnusedSourceFile11ContentViewVGACyxGAA5SceneAAWL
+0x10000C0F8	0x00000028	[  3] _$s20DCD_UnusedSourceFile19ResourceBundleClass33_395893EBA9ADFA893585EA88A9165061LLCMm
+0x10000C120	0x00000070	[  3] _$s20DCD_UnusedSourceFile19ResourceBundleClass33_395893EBA9ADFA893585EA88A9165061LLCMf
+0x10000C138	0x00000000	[  3] _$s20DCD_UnusedSourceFile19ResourceBundleClass33_395893EBA9ADFA893585EA88A9165061LLCN
+0x10000C190	0x00000080	[  1] _$s20DCD_UnusedSourceFile11ContentViewV7SwiftUI0F0AAMcMK
+0x10000C210	0x00000008	[  1] l_keypath_once
+0x10000C220	0x00000080	[  2] _$s20DCD_UnusedSourceFile0a1_bcD3AppV7SwiftUI0E0AAMcMK
+
+# Dead Stripped Symbols:
+#        	Size    	File  Name
+<<dead>>	0x00000004	[  2] _$s20DCD_UnusedSourceFile0a1_bcD3AppV7SwiftUI0E0AadEPxycfCTW
+<<dead>>	0x00000044	[  2] ___swift_instantiateConcreteTypeFromMangledName
+<<dead>>	0x00000048	[  2] ___swift_instantiateConcreteTypeFromMangledNameAbstract
+<<dead>>	0x00000020	[  2] l_.str.20.DCD_UnusedSourceFile
+<<dead>>	0x00000002	[  2] ___swift_reflection_version
+<<dead>>	0x0000000C	[  2] _$s20DCD_UnusedSourceFileMXM
+<<dead>>	0x00000002	[  2] _symbolic x
+<<dead>>	0x00000001	[  3] literal string: 
+<<dead>>	0x00000001	[  3] literal string: 
+<<dead>>	0x00000001	[  3] literal string: 
+<<dead>>	0x00000001	[  3] literal string: 
+<<dead>>	0x00000001	[  3] literal string: 
+<<dead>>	0x00000001	[  3] literal string: 
+<<dead>>	0x00000001	[  3] literal string: 
+<<dead>>	0x00000001	[  3] literal string: 
+<<dead>>	0x00000001	[  3] literal string: 
+<<dead>>	0x00000001	[  3] literal string: 
+<<dead>>	0x00000001	[  3] literal string: 
+<<dead>>	0x00000001	[  3] literal string: 
+<<dead>>	0x00000020	[  3] l_.str.20.DCD_UnusedSourceFile
+<<dead>>	0x00000002	[  3] ___swift_reflection_version
+<<dead>>	0x0000000C	[  3] _$s20DCD_UnusedSourceFileMXM
