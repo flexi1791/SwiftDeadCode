@@ -110,8 +110,8 @@ func analyze(debug: LinkMapData, release: LinkMapData, config: Configuration) ->
   // Step 7: collect debug objects that ended up without any debug-only symbols.
   var unusedObjects: [ObjectRecord] = []
   for object in debugData.objects.compactMap({ $0 }) {
-    if object.debugSymbols.isEmpty {
-      print("XXXXXX Unused file \(object.path) \(object.index)")
+    let releaseObject = releaseData.objects[safe: object.index] ?? nil
+    if releaseObject == nil {
       unusedObjects.append(object)
     }
   }

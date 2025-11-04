@@ -36,8 +36,7 @@ final class UnusedSourceFileProjectTests: XCTestCase {
 
     let result = analyze(debug: debugMap, release: releaseMap, config: config)
 
-    XCTAssertEqual(result.unusedSymbols.count, 1)
-    XCTAssertEqual(result.unusedSymbols.first?.name, "_$ss31_stdlib_isOSVersionAtLeast_AEICyBi1_Bw_BwBwtF")
-    XCTAssertEqual(result.unusedObjects.map(\.baseName), ["GeneratedAssetSymbols.o"])
+    XCTAssertTrue(result.unusedSymbols.isEmpty)
+    XCTAssertTrue(result.unusedObjects.isEmpty)
   }
 }

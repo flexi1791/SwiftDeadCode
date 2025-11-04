@@ -78,7 +78,8 @@ let nonSwiftNoiseTokensLowercased: [String] = [
   "swift_store_extra_inhabitant_index",
   "associated conformance",
   "_resumecheckedthrowingcontinuation",
-  "fmu_"
+  "fmu_",
+  "$deferl_"
 ]
 
 /// Prefixes that quickly eliminate well-known tool-generated symbols.
@@ -172,6 +173,11 @@ let systemModuleNames: Set<String> = [
   "Network", "AuthenticationServices", "UserNotifications", "ReplayKit", "GameKit", "CoreMotion",
   "CoreTelephony", "WebKit", "StoreKit", "Intents", "Vision", "RealityKit", "ARKit", "PDFKit",
   "DeveloperToolsSupport"
+]
+
+/// Module name prefixes that should be ignored regardless of suffix allow-list matches.
+let ignoredModuleNamePrefixes: [String] = [
+  "_stdlib"
 ]
 
 /// Characters that permit stripping a module prefix when encountered immediately prior to the module name.

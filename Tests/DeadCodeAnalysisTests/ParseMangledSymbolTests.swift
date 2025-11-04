@@ -25,4 +25,10 @@ final class ParseMangledSymbolTests: XCTestCase {
     XCTAssertEqual(parts.segments, ["Test", "Thing"])
     XCTAssertEqual(parts.suffix, "V")
   }
+
+  func testExtractModuleNameForStdlibSymbol() {
+    let symbol = "_$ss31_stdlib_isOSVersionAtLeast_AEICyBi1_Bw_BwBwtF"
+    let module = extractModuleName(fromMangled: symbol)
+    XCTAssertTrue(module?.hasPrefix("_stdlib") == true)
+  }
 }

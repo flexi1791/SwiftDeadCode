@@ -14,6 +14,7 @@ func shouldIgnoreObject(_ object: ObjectRecord) -> Bool {
   if lowered.contains(".dylib") { return true }
   if lowered.contains("linker synthesized") { return true }
   if path.contains("/Pods/") { return true }
+  if lowered.contains("generatedassetsymbols") { return true }
   return false
 }
 
@@ -33,9 +34,6 @@ func shouldKeepSymbol(
     return false
   }
   if nonSwiftNoisePrefixesLowercased.contains(where: { lower.hasPrefix($0) }) {
-    return false
-  }
-  if lower.contains("$deferl_") {
     return false
   }
   if lower.hasSuffix(".resume") || lower.contains("mn.resume") {
@@ -66,6 +64,10 @@ func shouldKeepSymbol(
     return false
   }
   let parts = parseMangledSymbol(canonical)
+  if let module = moduleName(from: parts),
+     ignoredModuleNamePrefixes.contains(where: { module.hasPrefix($0) }) {
+      return false
+    }
   guard let suffix = canonicalSuffixCandidate(from: parts) else {
     return false
   }
